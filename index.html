@@ -2,208 +2,314 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Home</title>
+<title>Command Deck</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- Icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-:root {
-      --bg: #2a1b2e;
-      --section-bg: #3b2640;
-      --card-bg: #4b2b50;
-      --text: #f3e5f5;
-      --muted: #dcdcdc;
-      --accent: #8e24aa;
-      --hover: #7b1fa2;
-}
-
-body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: Arial, sans-serif;
+  body {
     margin: 0;
-    padding: 0;
-}
-
-h1 {
-    text-align: center;
-    margin-top: 15px;
-    font-size: 2rem;
-    color: var(--text);
-}
-
-/* COMPACT WEATHER WIDGET */
-#weather-section {
-    width: 100%;
-    max-width: 740px;
-    margin: 15px auto 0 auto;
-    padding: 0 10px;
-}
-
-#weather-section h2 {
-    font-size: 1.4rem;
-    margin-bottom: 8px;
-    text-align: center;
-}
-
-.weather-card {
-    background: var(--card-bg);
-    border-radius: 14px;
-    padding: 10px 6px;
+    font-family: 'Roboto', sans-serif;
+    background: #2a1b2e;
+    color: #f3e5f5;
+  }
+  header {
+    background: #2a1b2e;
+    padding: 20px 40px;
     display: flex;
     justify-content: space-between;
-    gap: 8px;
-}
-
-.weather-day {
-    width: 32%;
-    background: rgba(255,255,255,0.07);
-    padding: 8px;
-    border-radius: 12px;
-    text-align: center;
-}
-
-.weather-day h3 {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--accent);
-}
-
-/* Rounded icon style */
-.weather-icon {
-    width: 45px;
-    height: 45px;
-    margin: 6px auto;
-    background: rgba(0,0,0,0.25);
-    border-radius: 50%;
-    display: flex;
     align-items: center;
-    justify-content: center;
-}
+  }
+  header h1 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 2.5em;
+  }
+  #date-time {
+    font-weight: 500;
+  }
 
-.weather-icon img {
-    width: 26px;
-    height: 26px;
-}
-
-.weather-temp {
-    font-size: 1.05rem;
-    font-weight: bold;
-}
-
-.weather-desc {
-    font-size: 0.8rem;
-    color: var(--muted);
-}
-
-/*** Link Grid (unchanged from before) ***/
-#links {
-    max-width: 900px;
-    margin: 20px auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.link-card {
-    background: var(--card-bg);
-    padding: 12px;
+  /* Weather Widget */
+  #weatherWidget {
+    width: 100%;
+    background: #3b2640;
+    padding: 20px;
     border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  #weatherWidget h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.6em;
+  }
+  .weather-day {
+    padding: 10px 0;
+    border-bottom: 1px solid #54385b;
+  }
+  .weather-day:last-child {
+    border-bottom: none;
+  }
+  .weather-icon {
+    font-size: 1.4em;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  h2 {
+    font-size: 1.8em;
+    border-bottom: 2px solid #f3e5f5;
+    display: inline-block;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  .card {
+    background: #3b2640;
+    border-radius: 10px;
+    padding: 12px;
     text-align: center;
-    transition: 0.25s;
-}
-
-.link-card:hover {
-    background: var(--hover);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
     cursor: pointer;
-}
+  }
+  .card:hover {
+    background: #7b1fa2;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  }
+  .card a {
+    text-decoration: none;
+    color: inherit;
+    font-size: 0.95em;
+  }
 
-.link-card i {
-    font-size: 26px;
-    margin-bottom: 6px;
-    display: block;
-    color: var(--accent);
-}
+  .widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  .widget-card {
+    background: #3b2640;
+    border-radius: 10px;
+    padding: 20px;
+    font-weight: 500;
+    color: #f3e5f5;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 150px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  }
+  .widget-card:hover {
+    background: #7b1fa2;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  }
+  .widget-card h3 {
+    margin: 0 0 10px 0;
+  }
+  button.refresh-btn {
+    margin-top: 10px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: none;
+    background: #8e24aa;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    align-self: flex-start;
+  }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    background: #2a1b2e;
+    color: #ccc;
+    margin-top: 40px;
+  }
+
+  @media(max-width:600px){
+    main { gap: 30px; }
+    .cards { grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); }
+    .card { height: 90px; }
+    .widgets { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
+
 <body>
+<header>
+  <h1>Command Deck</h1>
+  <div id="date-time"></div>
+</header>
 
-<h1>Home</h1>
+<main>
 
-<!-- WEATHER -->
-<div id="weather-section">
-    <h2><i class="fas fa-cloud-sun"></i> Indianapolis Weather</h2>
-    <div id="weather-container" class="weather-card">
-        <!-- JS will insert forecast -->
+  <!-- WEATHER AT TOP -->
+  <section id="weatherWidget">
+    <h2>Weather (Next 3 Days)</h2>
+    <div id="weatherContent">Loading weather...</div>
+  </section>
+
+  <!-- Hubs Section -->
+  <section>
+    <h2>Hubs</h2>
+    <div class="cards">
+      <div class="card"><a href="finance.html">💰 Finance</a></div>
+      <div class="card"><a href="music.html">🎵 Music</a></div>
+      <div class="card"><a href="faith.html">🙏 Faith</a></div>
+      <div class="card"><a href="fitness.html">🏃 Fitness</a></div>
+      <div class="card"><a href="books.html">📚 Books</a></div>
+      <div class="card"><a href="calendar.html">🗓️ Calendar</a></div>
     </div>
-</div>
+  </section>
 
-<!-- LINKS SECTION -->
-<div id="links">
-    <a class="link-card" href="https://www.youtube.com" target="_blank">
-        <i class="fab fa-youtube"></i> YouTube
-    </a>
-    <a class="link-card" href="https://www.reddit.com" target="_blank">
-        <i class="fab fa-reddit"></i> Reddit
-    </a>
-    <a class="link-card" href="https://www.amazon.com" target="_blank">
-        <i class="fab fa-amazon"></i> Amazon
-    </a>
-    <a class="link-card" href="https://old.reddit.com/r/fantasyfootball" target="_blank">
-        <i class="fas fa-football-ball"></i> Fantasy Football
-    </a>
-    <a class="link-card" href="https://www.goodreads.com" target="_blank">
-        <i class="fas fa-book"></i> Goodreads
-    </a>
-    <a class="link-card" href="https://paidviewpoint.com" target="_blank">
-        <i class="fas fa-coins"></i> PaidViewpoint
-    </a>
-    <a class="link-card" href="https://mail.google.com" target="_blank">
-        <i class="fas fa-envelope"></i> Gmail
-    </a>
-</div>
+  <!-- Fun Links Section -->
+  <section>
+    <h2>Fun Links</h2>
+    <div class="cards">
+      <div class="card"><a href="https://app.paidviewpoint.com/dashboard" target="_blank">💵 Viewpoint</a></div>
+      <div class="card"><a href="https://chatgpt.com/" target="_blank">🤖 ChatGPT</a></div>
+      <div class="card"><a href="https://sora.chatgpt.com/library" target="_blank">📚 Sora</a></div>
+      <div class="card"><a href="https://www.linkedin.com/mynetwork/grow/" target="_blank">💼 LinkedIn</a></div>
+      <div class="card"><a href="https://hcm.paycor.com/authentication/signin" target="_blank">🏦 Paycor</a></div>
+      <div class="card"><a href="https://www.goodreads.com/giveaway?sort=ending_soon&format=print" target="_blank">📖 Goodreads</a></div>
+      <div class="card"><a href="https://www.espn.com/nfl/scoreboard" target="_blank">🏈 NFL</a></div>
+      <div class="card"><a href="https://www.espn.com/college-football/scoreboard" target="_blank">🏈 NCAAF</a></div>
+      <div class="card"><a href="https://www.espn.com/mens-college-basketball/scoreboard" target="_blank">🏀 NCAAB</a></div>
+      <div class="card"><a href="https://www.kenpom.com" target="_blank">🏀 KenPom</a></div>
+      <div class="card"><a href="https://www.espn.com/nhl/scoreboard" target="_blank">🏒 NHL</a></div>
+      <div class="card"><a href="https://apnews.com/hub/ap-top-25-college-basketball-poll" target="_blank">📊 AP Top 25 Basketball</a></div>
+      <div class="card"><a href="https://apnews.com/hub/ap-top-25-college-football-poll" target="_blank">📊 AP Top 25 Football</a></div>
+      <div class="card"><a href="https://marvelsnapzone.com/decks/" target="_blank">🃏 Snap</a></div>
+      <div class="card"><a href="https://www.nytimes.com/games" target="_blank">🧩 Wordle</a></div>
+      <div class="card"><a href="https://www.sporcle.com" target="_blank">🎯 Sporcle</a></div>
+      <div class="card"><a href="https://calendar.google.com/calendar/u/0/r/month/2025/11/1" target="_blank">🗓️ Google Calendar</a></div>
+      <div class="card"><a href="https://www.ted.com/talks?sort=newest&duration=0-6" target="_blank">📺 TED</a></div>
+    </div>
+  </section>
+
+  <!-- Widgets Section -->
+  <section>
+    <h2>Widgets</h2>
+    <div class="widgets">
+      <!-- Wikipedia Snippet -->
+      <div class="widget-card">
+        <h3>Wikipedia Snippet</h3>
+        <div id="wiki-snippet">Loading snippet...</div>
+        <button class="refresh-btn" onclick="loadWikiSnippet()">Refresh</button>
+      </div>
+
+      <!-- Weather in Widgets (Removed Joke Widget) -->
+      <div class="widget-card">
+        <h3>Weather Summary</h3>
+        <div id="weather-mini">Loading...</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  &copy; 2025 DCW
+</footer>
 
 <script>
-/* Weather using wttr.in_raw icons (fast + rounded icon container) */
+/* ------------------------ CLOCK ------------------------ */
+function updateDateTime() {
+  const now = new Date();
+  const opts = { weekday:'short', month:'short', day:'numeric', year:'numeric' };
+  const dateStr = now.toLocaleDateString(undefined, opts);
+  const timeStr = now.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit', hour12:true});
+  document.getElementById('date-time').innerText = `${dateStr} ${timeStr}`;
+}
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+/* ------------------------ WIKIPEDIA ------------------------ */
+async function loadWikiSnippet(){
+  try{
+    const resp = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary');
+    const data = await resp.json();
+    document.getElementById('wiki-snippet').innerHTML =
+      `<strong>${data.title}:</strong> ${data.extract}`;
+  }catch{
+    document.getElementById('wiki-snippet').innerText='Failed to load snippet';
+  }
+}
+loadWikiSnippet();
+
+/* ------------------------ WEATHER (FAST) ------------------------ */
 async function loadWeather() {
-    const url = "https://wttr.in/Indianapolis?format=j1";
+  const weatherBox = document.getElementById("weatherContent");
+  const mini = document.getElementById("weather-mini");
 
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
+  try {
+    const url =
+      "https://api.open-meteo.com/v1/forecast?latitude=39.7684&longitude=-86.1581&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America/New_York";
 
-        const forecast = data.weather.slice(0, 3);
-        const container = document.getElementById("weather-container");
-        container.innerHTML = "";
+    const res = await fetch(url);
+    if (!res.ok) throw new Error();
 
-        forecast.forEach(day => {
-            const date = new Date(day.date);
-            const name = date.toLocaleDateString("en-US", { weekday: "short" });
-            const avgTemp = day.avgtempF + "°F";
+    const data = await res.json();
 
-            const cond = day.hourly[4].weatherDesc[0].value;
+    const icons = {
+      0:"☀️",1:"🌤️",2:"⛅",3:"☁️",
+      45:"🌫️",48:"🌫️",
+      51:"🌦️",53:"🌦️",55:"🌦️",
+      61:"🌧️",63:"🌧️",65:"🌧️",
+      71:"🌨️",73:"🌨️",75:"🌨️",
+      95:"⛈️",96:"⛈️",99:"⛈️"
+    };
 
-            /* wttr.in provides icon URLs */
-            const iconUrl = day.hourly[4].weatherIconUrl[0].value;
+    let detailedHTML = "";
+    let miniHTML = "";
 
-            container.innerHTML += `
-                <div class="weather-day">
-                    <h3>${name}</h3>
-                    <div class="weather-icon">
-                        <img src="${iconUrl}" alt="">
-                    </div>
-                    <div class="weather-temp">${avgTemp}</div>
-                    <div class="weather-desc">${cond}</div>
-                </div>
-            `;
-        });
+    for (let i = 0; i < 3; i++) {
+      const date = new Date(data.daily.time[i]);
+      const day = date.toLocaleDateString("en-US", { weekday:"short" });
+      const icon = icons[data.daily.weathercode[i]] || "❓";
+      const hi = data.daily.temperature_2m_max[i];
+      const lo = data.daily.temperature_2m_min[i];
+      const rain = data.daily.precipitation_probability_max[i];
 
-    } catch (e) {
-        document.getElementById("weather-container").innerHTML =
-            "<p style='text-align:center;color:var(--muted);'>Weather unavailable.</p>";
+      detailedHTML += `
+        <div class="weather-day">
+          <span class="weather-icon">${icon}</span>
+          <strong>${day}</strong>
+          <br>High: ${hi}°F | Low: ${lo}°F
+          <br>Rain: ${rain}%
+        </div>
+      `;
+
+      miniHTML += `${day}: ${icon} ${hi}°F<br>`;
     }
+
+    weatherBox.innerHTML = detailedHTML;
+    mini.innerHTML = miniHTML;
+
+  } catch (e) {
+    weatherBox.innerHTML = "Weather unavailable.";
+    mini.innerHTML = "Weather unavailable.";
+  }
 }
 
 loadWeather();
