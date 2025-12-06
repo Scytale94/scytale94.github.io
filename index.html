@@ -5,6 +5,7 @@
 <title>Command Deck</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
   body {
     margin: 0;
@@ -27,6 +28,31 @@
   #date-time {
     font-weight: 500;
   }
+
+  /* Weather Widget */
+  #weatherWidget {
+    width: 100%;
+    background: #3b2640;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  #weatherWidget h2 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.6em;
+  }
+  .weather-day {
+    padding: 10px 0;
+    border-bottom: 1px solid #54385b;
+  }
+  .weather-day:last-child {
+    border-bottom: none;
+  }
+  .weather-icon {
+    font-size: 1.4em;
+  }
+
   main {
     max-width: 1100px;
     margin: 40px auto;
@@ -42,6 +68,7 @@
     padding-bottom: 5px;
     margin-bottom: 20px;
   }
+
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -73,7 +100,6 @@
     font-size: 0.95em;
   }
 
-  /* Widgets grid */
   .widgets {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -111,6 +137,7 @@
     font-weight: 500;
     align-self: flex-start;
   }
+
   footer {
     text-align: center;
     padding: 20px;
@@ -118,6 +145,7 @@
     color: #ccc;
     margin-top: 40px;
   }
+
   @media(max-width:600px){
     main { gap: 30px; }
     .cards { grid-template-columns: repeat(auto-fill,minmax(100px,1fr)); }
@@ -126,6 +154,7 @@
   }
 </style>
 </head>
+
 <body>
 <header>
   <h1>Command Deck</h1>
@@ -133,6 +162,13 @@
 </header>
 
 <main>
+
+  <!-- WEATHER AT TOP -->
+  <section id="weatherWidget">
+    <h2>Weather (Next 3 Days)</h2>
+    <div id="weatherContent">Loading weather...</div>
+  </section>
+
   <!-- Hubs Section -->
   <section>
     <h2>Hubs</h2>
@@ -143,7 +179,6 @@
       <div class="card"><a href="fitness.html">🏃 Fitness</a></div>
       <div class="card"><a href="books.html">📚 Books</a></div>
       <div class="card"><a href="calendar.html">🗓️ Calendar</a></div>
-
     </div>
   </section>
 
@@ -176,23 +211,21 @@
   <section>
     <h2>Widgets</h2>
     <div class="widgets">
+      <!-- Wikipedia Snippet -->
       <div class="widget-card">
         <h3>Wikipedia Snippet</h3>
         <div id="wiki-snippet">Loading snippet...</div>
         <button class="refresh-btn" onclick="loadWikiSnippet()">Refresh</button>
       </div>
+
+      <!-- Weather in Widgets (Removed Joke Widget) -->
       <div class="widget-card">
-        <h3>Joke of the Day</h3>
-        <div id="joke-of-day">Loading...</div>
-        <button class="refresh-btn" onclick="loadJoke()">Refresh</button>
-      </div>
-      <div class="widget-card">
-        <h3>Weather (Indianapolis)</h3>
-        <div id="weather-current">Loading current weather...</div>
-        <div id="weather-forecast"></div>
+        <h3>Weather Summary</h3>
+        <div id="weather-mini">Loading...</div>
       </div>
     </div>
   </section>
+
 </main>
 
 <footer>
@@ -200,75 +233,87 @@
 </footer>
 
 <script>
-  // Date & Time
-  function updateDateTime() {
-    const now = new Date();
-    const options = { weekday:'short', month:'short', day:'numeric', year:'numeric' };
-    const dateStr = now.toLocaleDateString(undefined, options);
-    const timeStr = now.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit',hour12:true});
-    document.getElementById('date-time').innerText = `${dateStr} ${timeStr}`;
-  }
-  setInterval(updateDateTime,1000);
-  updateDateTime();
+/* ------------------------ CLOCK ------------------------ */
+function updateDateTime() {
+  const now = new Date();
+  const opts = { weekday:'short', month:'short', day:'numeric', year:'numeric' };
+  const dateStr = now.toLocaleDateString(undefined, opts);
+  const timeStr = now.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit', hour12:true});
+  document.getElementById('date-time').innerText = `${dateStr} ${timeStr}`;
+}
+setInterval(updateDateTime, 1000);
+updateDateTime();
 
-  // Wikipedia Snippet
-  async function loadWikiSnippet(){
-    try{
-      const resp = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary');
-      const data = await resp.json();
-      document.getElementById('wiki-snippet').innerHTML = `<strong>${data.title}:</strong> ${data.extract}`;
-    }catch(e){
-      document.getElementById('wiki-snippet').innerText='Failed to load snippet';
-    }
-  }
-  loadWikiSnippet();
-
-  // Joke of the Day
-  async function loadJoke() {
-    try{
-      const resp = await fetch('https://v2.jokeapi.dev/joke/Any?type=single');
-      const data = await resp.json();
-      document.getElementById('joke-of-day').innerText = data.joke;
-    }catch(e){
-      document.getElementById('joke-of-day').innerText = 'Failed to load joke';
-    }
-  }
-  loadJoke();
-
-// WEATHER (free no-key endpoint)
-async function loadWeather() {
-  try {
-    const res = await fetch("https://api.open-meteo.com/v1/forecast?latitude=39.7684&longitude=-86.1581&daily=temperature_2m_max,weathercode&timezone=America/New_York");
-    const data = await res.json();
-    const days = ["Today", "Tomorrow", "Day 3"];
-    const weatherIcons = {
-      0: "fa-sun",
-      1: "fa-cloud-sun",
-      2: "fa-cloud",
-      3: "fa-cloud-sun-rain",
-      45: "fa-smog",
-      48: "fa-smog",
-      51: "fa-cloud-rain",
-      61: "fa-cloud-showers-heavy",
-      71: "fa-snowflake",
-      95: "fa-bolt"
-    };
-    const container = document.getElementById("forecast");
-    container.innerHTML = "";
-    for (let i = 0; i < 3; i++) {
-      const temp = data.daily.temperature_2m_max[i];
-      const code = data.daily.weathercode[i];
-      const iconClass = weatherIcons[code] || "fa-question";
-      const card = document.createElement("div");
-      card.className = "forecast-card";
-      card.innerHTML = `<i class="fa-solid ${iconClass} icon"></i><p>${days[i]}</p><p>${temp}°F</p>`;
-      container.appendChild(card);
-    }
-  } catch (err) {
-    document.getElementById("forecast").innerHTML = "<p>Error loading weather</p>";
+/* ------------------------ WIKIPEDIA ------------------------ */
+async function loadWikiSnippet(){
+  try{
+    const resp = await fetch('https://en.wikipedia.org/api/rest_v1/page/random/summary');
+    const data = await resp.json();
+    document.getElementById('wiki-snippet').innerHTML =
+      `<strong>${data.title}:</strong> ${data.extract}`;
+  }catch{
+    document.getElementById('wiki-snippet').innerText='Failed to load snippet';
   }
 }
+loadWikiSnippet();
+
+/* ------------------------ WEATHER (FAST) ------------------------ */
+async function loadWeather() {
+  const weatherBox = document.getElementById("weatherContent");
+  const mini = document.getElementById("weather-mini");
+
+  try {
+    const url =
+      "https://api.open-meteo.com/v1/forecast?latitude=39.7684&longitude=-86.1581&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=America/New_York";
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+
+    const icons = {
+      0:"☀️",1:"🌤️",2:"⛅",3:"☁️",
+      45:"🌫️",48:"🌫️",
+      51:"🌦️",53:"🌦️",55:"🌦️",
+      61:"🌧️",63:"🌧️",65:"🌧️",
+      71:"🌨️",73:"🌨️",75:"🌨️",
+      95:"⛈️",96:"⛈️",99:"⛈️"
+    };
+
+    let detailedHTML = "";
+    let miniHTML = "";
+
+    for (let i = 0; i < 3; i++) {
+      const date = new Date(data.daily.time[i]);
+      const day = date.toLocaleDateString("en-US", { weekday:"short" });
+      const icon = icons[data.daily.weathercode[i]] || "❓";
+      const hi = data.daily.temperature_2m_max[i];
+      const lo = data.daily.temperature_2m_min[i];
+      const rain = data.daily.precipitation_probability_max[i];
+
+      detailedHTML += `
+        <div class="weather-day">
+          <span class="weather-icon">${icon}</span>
+          <strong>${day}</strong>
+          <br>High: ${hi}°F | Low: ${lo}°F
+          <br>Rain: ${rain}%
+        </div>
+      `;
+
+      miniHTML += `${day}: ${icon} ${hi}°F<br>`;
+    }
+
+    weatherBox.innerHTML = detailedHTML;
+    mini.innerHTML = miniHTML;
+
+  } catch (e) {
+    weatherBox.innerHTML = "Weather unavailable.";
+    mini.innerHTML = "Weather unavailable.";
+  }
+}
+
 loadWeather();
 </script>
+
 </body>
 </html>
