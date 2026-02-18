@@ -1,0 +1,142 @@
+/* ============================= */
+/*        GLOBAL THEME           */
+/* ============================= */
+
+:root {
+  --bg: #2a1b2e;
+  --section-bg: #3b2640;
+  --card-bg: #4b2b50;
+  --text: #f3e5f5;
+  --muted: #d1c4e9;
+  --accent: #8e24aa;
+  --hover: #7b1fa2;
+  --shadow: rgba(0,0,0,0.35);
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+}
+
+/* ============================= */
+/*           HEADINGS            */
+/* ============================= */
+
+h1, h2, h3 {
+  color: var(--text);
+}
+
+/* ============================= */
+/*          SECTIONS             */
+/* ============================= */
+
+.section {
+  background: var(--section-bg);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 900px;
+  box-shadow: 0 6px 25px var(--shadow);
+}
+
+/* ============================= */
+/*            TILES              */
+/* ============================= */
+
+.tiles {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.tile {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 20px;
+  width: 120px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-weight: bold;
+  font-size: 1em;
+  color: var(--text);
+  text-decoration: none;
+  box-shadow: 0 5px 15px var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.tile:hover {
+  transform: translateY(-5px);
+  background: var(--hover);
+}
+
+/* ============================= */
+/*         BACK BUTTON           */
+/* ============================= */
+
+.back-button-container {
+  margin-bottom: 20px;
+}
+
+.back-button {
+  width: 130px;
+  height: 50px;
+}
+
+/* ============================= */
+/*            TABLES             */
+/* ============================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  border-bottom: 1px solid var(--text);
+  padding: 8px;
+}
+
+tr:hover {
+  background-color: var(--hover);
+}
+
+/* ============================= */
+/*        INPUTS + BUTTONS       */
+/* ============================= */
+
+input, button, select {
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  margin: 5px;
+}
+
+input {
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+button {
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--hover);
+}
+
+select {
+  background: var(--card-bg);
+  color: var(--text);
+}
