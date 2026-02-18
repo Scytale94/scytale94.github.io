@@ -1,181 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+  
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Books Hub</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<style>
-  :root{
-    --bg:#2a1b2e;
-    --section-bg: #3b2640;
-    --card: #3b2640;
-    --muted:#dcdcdc;
-    --accent:#f3e5f5;
-    --gold:#ffd369;
-    --glass: rgba(255,255,255,0.06);
-  }
-  html,body{
-    height:100%;
-    margin:0;
-    font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
-    background: linear-gradient(135deg,#2a1b2e,#2a1b2e);
-    color:#f3e5f5;
-  }
-  header{
-    padding:18px;
-    text-align:center;
-    background: rgba(0,0,0,0.25);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  }
-  header h1{
-    margin:0;
-    font-family: "Orbitron", sans-serif;
-    font-size:2rem;
-    color:var(--accent);
-    letter-spacing:1px;
-  }
-  main{
-    max-width:980px;
-    margin:28px auto;
-    padding:0 18px 80px 18px;
-  }
-  .section{
-    background:var(--section-bg);
-    padding:18px;
-    border-radius:12px;
-    margin-bottom:24px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
-  }
-  .section h2{
-    margin:0 0 12px 0;
-    display:inline-block;
-    font-size:1.15rem;
-    border-bottom:2px solid var(--accent);
-    padding-bottom:6px;
-  }
-  .shelf-grid{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-top:8px;
-  }
-  .book-card{
-    background:var(--card);
-    width:105px;
-    min-width:100px;
-    border-radius:8px;
-    padding:6px;
-    text-align:center;
-    box-shadow:0 3px 8px rgba(0,0,0,0.4);
-    transition: transform .15s, box-shadow .15s;
-  }
-  .book-card:hover{
-    transform: translateY(-3px);
-    box-shadow:0 8px 18px rgba(0,0,0,0.55);
-  }
-  .book-cover{
-    width:100%;
-    height:140px;
-    object-fit:cover;
-    border-radius:5px;
-    background: linear-gradient(180deg,#333,#222);
-  }
-  .book-title{
-    font-weight:600;
-    font-size:0.8rem;
-    margin:6px 0 3px 0;
-    min-height:32px;
-  }
-  .book-author{
-    font-size:0.7rem;
-    color:var(--muted);
-    margin-bottom:4px;
-  }
-  .small-link{
-    display:inline-block;
-    margin-top:4px;
-    color:var(--gold);
-    text-decoration:none;
-    font-size:0.7rem;
-  }
-
-  /* Read books table */
-  .table-controls{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:12px;
-    align-items:center;
-  }
-  .table-controls input[type="text"], .table-controls input[type="number"]{
-    padding:8px 10px;
-    border-radius:8px;
-    border:0;
-    background:var(--glass);
-    color:var(--muted);
-  }
-  .table-controls button{
-    padding:8px 12px;
-    border-radius:8px;
-    border:0;
-    background:var(--accent);
-    color:#fff;
-    cursor:pointer;
-    font-weight:600;
-  }
-  table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-    background: transparent;
-    color:var(--muted);
-  }
-  th, td{
-    padding:10px 8px;
-    text-align:left;
-    border-bottom:1px solid rgba(255,255,255,0.04);
-  }
-  th{
-    color:#fff;
-    font-weight:700;
-    font-size:0.95rem;
-  }
-  td .small{
-    display:block;
-    color:var(--muted);
-    font-size:0.88rem;
-  }
-  .action-btn{
-    background:transparent;
-    border:1px solid rgba(255,255,255,0.06);
-    color:var(--muted);
-    padding:6px 8px;
-    border-radius:8px;
-    cursor:pointer;
-    margin-left:6px;
-  }
-  .muted-note{
-    color:var(--muted);
-    font-size:0.9rem;
-    margin-top:8px;
-  }
-  .back{
-    display:inline-block;
-    margin-top:12px;
-    color:var(--gold);
-    text-decoration:none;
-  }
-
-  @media (max-width:720px){
-    .book-cover{height:120px}
-    .book-card{width:31%}
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reading Hub</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
+
+<div class="back-button-container">
+  <a href="https://scytale94.github.io/" class="tile back-button">⬅ Home</a>
+</div>
+  
 <body>
   <header>
-    <h1><i class="fa-solid fa-book"></i> Books Hub</h1>
+    <h1><i class="fa-solid fa-book"></i> Reading Hub</h1>
   </header>
 
     <!-- Back to Home Button -->
