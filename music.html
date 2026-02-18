@@ -64,6 +64,7 @@
     }
     th {
       color: #d1c4e9;
+      cursor: pointer;
     }
     tr:hover {
       background-color: #7b1fa2;
@@ -99,19 +100,17 @@
 <body>
   <h1>Music Hub</h1>
 
-    <!-- Back to Home Button -->
+  <!-- Back to Home Button -->
   <div style="margin-bottom: 20px;">
     <a href="index.html" class="tile" style="width: 120px; height: 50px; padding: 10px; font-size: 1em; display: inline-flex; align-items: center; justify-content: center;">
       ⬅ Home
     </a>
   </div>
 
-  <!-- Tiles Section -->
   <div class="tiles">
     <a href="https://open.spotify.com" target="_blank" class="tile">🎵 Spotify</a>
   </div>
 
-  <!-- Album Tracker Section -->
   <div class="section">
     <h2>Albums Listened To</h2>
     <p>Overall albums logged: <span id="albumCount">0</span></p>
@@ -124,6 +123,8 @@
       <input type="number" id="albumYear" placeholder="Year" min="1900" max="2100" />
       <button onclick="addAlbum()">Add Album</button>
       <button onclick="exportCSV()">Export to CSV</button>
+      <button onclick="document.getElementById('csvFile').click()">Import CSV</button>
+      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
       <select id="yearFilter" onchange="filterByYear()">
         <option value="all">All Years</option>
       </select>
@@ -132,10 +133,10 @@
     <table id="albumTable">
       <thead>
         <tr>
-          <th>Album</th>
-          <th>Artist</th>
-          <th>Rating</th>
-          <th>Year</th>
+          <th onclick="sortTable(0, false)">Album</th>
+          <th onclick="sortTable(1, false)">Artist</th>
+          <th onclick="sortTable(2, true)">Rating</th>
+          <th onclick="sortTable(3, true)">Year</th>
           <th>Delete</th>
         </tr>
       </thead>
@@ -143,97 +144,132 @@
     </table>
   </div>
 
-  <script>
-    const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
-    const albumCount = document.getElementById('albumCount');
-    const yearCount = document.getElementById('yearCount');
-    const yearFilter = document.getElementById('yearFilter');
+<script>
+const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
+const albumCount = document.getElementById('albumCount');
+const yearCount = document.getElementById('yearCount');
+const yearFilter = document.getElementById('yearFilter');
+let sortDirection = {};
 
-    function addAlbum() {
-      const name = document.getElementById('albumName').value.trim();
-      const artist = document.getElementById('artistName').value.trim();
-      const rating = document.getElementById('albumRating').value.trim();
-      const year = document.getElementById('albumYear').value.trim();
+function addAlbum() {
+  const name = albumName.value.trim();
+  const artist = artistName.value.trim();
+  const rating = albumRating.value.trim();
+  const year = albumYear.value.trim();
 
-      if(!name || !artist || !rating || !year) {
-        alert('Please fill out all fields.');
-        return;
+  if(!name || !artist || !rating || !year) {
+    alert('Please fill out all fields.');
+    return;
+  }
+
+  insertRow(name, artist, rating, year);
+  albumName.value = artistName.value = albumRating.value = albumYear.value = '';
+  updateCounts();
+  updateYearFilter();
+}
+
+function insertRow(name, artist, rating, year){
+  const rowEl = albumTable.insertRow();
+  rowEl.insertCell(0).textContent = name;
+  rowEl.insertCell(1).textContent = artist;
+  rowEl.insertCell(2).textContent = rating;
+  rowEl.insertCell(3).textContent = year;
+  const delCell = rowEl.insertCell(4);
+  const delBtn = document.createElement('button');
+  delBtn.textContent = '✖';
+  delBtn.onclick = () => { albumTable.deleteRow(rowEl.rowIndex - 1); updateCounts(); updateYearFilter(); };
+  delCell.appendChild(delBtn);
+}
+
+function sortTable(colIndex, numeric){
+  const rows = Array.from(albumTable.rows);
+  sortDirection[colIndex] = !sortDirection[colIndex];
+  const dir = sortDirection[colIndex] ? 1 : -1;
+
+  rows.sort((a,b)=>{
+    let valA = a.cells[colIndex].textContent;
+    let valB = b.cells[colIndex].textContent;
+    if(numeric){
+      return (parseFloat(valA)-parseFloat(valB))*dir;
+    }
+    return valA.localeCompare(valB)*dir;
+  });
+
+  albumTable.innerHTML='';
+  rows.forEach(r=>albumTable.appendChild(r));
+}
+
+function importCSV(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const lines = e.target.result.split('\n').slice(1);
+    lines.forEach(line=>{
+      if(!line.trim()) return;
+      const [name,artist,rating,year] = line.split(',').map(v=>v.replace(/"/g,'').trim());
+      if(name && artist && rating && year){
+        insertRow(name,artist,rating,year);
       }
+    });
+    updateCounts();
+    updateYearFilter();
+  };
+  reader.readAsText(file);
+}
 
-      const rowEl = albumTable.insertRow();
-      rowEl.insertCell(0).textContent = name;
-      rowEl.insertCell(1).textContent = artist;
-      rowEl.insertCell(2).textContent = rating;
-      rowEl.insertCell(3).textContent = year;
-      const delCell = rowEl.insertCell(4);
-      const delBtn = document.createElement('button');
-      delBtn.textContent = '✖';
-      delBtn.onclick = () => { albumTable.deleteRow(rowEl.rowIndex - 1); updateCounts(); updateYearFilter(); };
-      delCell.appendChild(delBtn);
+function updateCounts() {
+  albumCount.textContent = albumTable.rows.length;
+  filterByYear();
+}
 
-      document.getElementById('albumName').value = '';
-      document.getElementById('artistName').value = '';
-      document.getElementById('albumRating').value = '';
-      document.getElementById('albumYear').value = '';
+function updateYearFilter() {
+  const years = new Set();
+  Array.from(albumTable.rows).forEach(row => years.add(row.cells[3].textContent));
+  const currentValue = yearFilter.value;
+  yearFilter.innerHTML = '<option value="all">All Years</option>';
+  Array.from(years).sort().forEach(y => {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    yearFilter.appendChild(opt);
+  });
+  if(Array.from(yearFilter.options).some(o => o.value === currentValue)) {
+    yearFilter.value = currentValue;
+  }
+  filterByYear();
+}
 
-      updateCounts();
-      updateYearFilter();
+function filterByYear() {
+  const selected = yearFilter.value;
+  let count = 0;
+  Array.from(albumTable.rows).forEach(row => {
+    if(selected === 'all' || row.cells[3].textContent === selected) {
+      row.style.display = '';
+      count++;
+    } else {
+      row.style.display = 'none';
     }
+  });
+  yearCount.textContent = count;
+}
 
-    function updateCounts() {
-      albumCount.textContent = albumTable.rows.length;
-      filterByYear(); // updates yearCount
-    }
-
-    function updateYearFilter() {
-      const years = new Set();
-      Array.from(albumTable.rows).forEach(row => years.add(row.cells[3].textContent));
-      const currentValue = yearFilter.value;
-      yearFilter.innerHTML = '<option value="all">All Years</option>';
-      Array.from(years).sort().forEach(y => {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
-        yearFilter.appendChild(opt);
-      });
-      if(Array.from(yearFilter.options).some(o => o.value === currentValue)) {
-        yearFilter.value = currentValue;
-      }
-      filterByYear();
-    }
-
-    function filterByYear() {
-      const selected = yearFilter.value;
-      let count = 0;
-      Array.from(albumTable.rows).forEach(row => {
-        if(selected === 'all' || row.cells[3].textContent === selected) {
-          row.style.display = '';
-          count++;
-        } else {
-          row.style.display = 'none';
-        }
-      });
-      yearCount.textContent = count;
-    }
-
-    function exportCSV() {
-      let csvContent = 'Album,Artist,Rating,Year\n';
-      Array.from(albumTable.rows).forEach(row => {
-        const cells = row.cells;
-        if(cells.length < 4) return;
-        csvContent += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].textContent}"\n`;
-      });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'albums.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-  </script>
+function exportCSV() {
+  let csvContent = 'Album,Artist,Rating,Year\n';
+  Array.from(albumTable.rows).forEach(row => {
+    const cells = row.cells;
+    if(cells.length < 4) return;
+    csvContent += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].textContent}"\n`;
+  });
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'albums.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+</script>
 </body>
 </html>
