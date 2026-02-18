@@ -1,325 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Finance Hub</title>
-  <style>
-    :root {
-      --bg: #2a1b2e;
-      --section-bg: #3b2640;
-      --card-bg: #4b2b50;
-      --text: #f3e5f5;
-      --muted: #dcdcdc;
-      --accent: #8e24aa;
-      --hover: #7b1fa2;
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    header {
-      background: #2a1b2e;
-      text-align: center;
-      padding: 30px 20px;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2.2em;
-      color: var(--text);
-    }
-    main {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 0 20px 80px;
-    }
-    section {
-      background: var(--section-bg);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 40px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
-    h2 {
-      font-size: 1.6em;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--text);
-      display: inline-block;
-      padding-bottom: 5px;
-    }
-    .cards {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-    .card {
-      background: var(--card-bg);
-      padding: 16px;
-      border-radius: 10px;
-      flex: 1 1 140px;
-      min-width: 140px;
-      text-align: center;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      background: var(--hover);
-    }
-    .card .label {
-      font-size: 0.9em;
-      margin-bottom: 8px;
-      color: var(--muted);
-    }
-    .card .value {
-      font-size: 1.4em;
-      font-weight: bold;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 10px 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      color: var(--text);
-      text-align: left;
-    }
-    th {
-      color: var(--text);
-      font-weight: bold;
-    }
-    input[type="text"], input[type="number"], input[type="date"] {
-      padding: 8px;
-      border: none;
-      border-radius: 6px;
-      background: var(--card-bg);
-      color: var(--text);
-      margin-right: 8px;
-    }
-    button {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      background: var(--accent);
-      color: #fff;
-      cursor: pointer;
-    }
-    button:hover {
-      background: var(--hover);
-    }
-    .back {
-      display: inline-block;
-      margin-bottom: 20px;
-      color: var(--text);
-      text-decoration: none;
-    }
-    .metal-calc input { width: 100px; }
-    .metal-calc div { margin-top: 10px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finance Hub</title>
+
+<style>
+:root {
+  --bg: #2a1b2e;
+  --section-bg: #3b2640;
+  --card-bg: #4b2b50;
+  --text: #f3e5f5;
+  --muted: #dcdcdc;
+  --accent: #8e24aa;
+  --hover: #7b1fa2;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ===== HEADER ===== */
+header {
+  text-align: center;
+  padding: 30px 20px 10px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.4em;
+}
+
+/* ===== STANDARD BACK BUTTON ===== */
+.back-button-container {
+  text-align: center;
+  margin: 20px 0 30px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 130px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--card-bg);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.back-button:hover {
+  background: var(--hover);
+  transform: translateY(-3px);
+}
+
+/* ===== MAIN LAYOUT ===== */
+main {
+  max-width: 950px;
+  margin: auto;
+  padding: 0 20px 80px;
+}
+
+section {
+  background: var(--section-bg);
+  border-radius: 14px;
+  padding: 25px;
+  margin-bottom: 40px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.35);
+}
+
+h2 {
+  font-size: 1.6em;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--text);
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* ===== CARDS ===== */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.card {
+  background: var(--card-bg);
+  padding: 18px;
+  border-radius: 12px;
+  flex: 1 1 160px;
+  min-width: 150px;
+  text-align: center;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.25);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  background: var(--hover);
+}
+
+.card .label {
+  font-size: 0.9em;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.card .value {
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+/* ===== INPUTS & BUTTONS ===== */
+input[type="text"],
+input[type="number"],
+input[type="date"] {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text);
+  margin-right: 8px;
+}
+
+button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: var(--hover);
+}
+
+/* ===== TABLES ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: left;
+}
+
+canvas {
+  margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
-  <header>
-    <h1>Finance Hub</h1>
-  </header>
-  <main>
-    <!-- Back to Home Button -->
-  <div style="margin-bottom: 20px;">
-    <a href="index.html" class="tile" style="width: 120px; height: 50px; padding: 10px; font-size: 1em; display: inline-flex; align-items: center; justify-content: center;">
-      ⬅ Home
-    </a>
+
+<header>
+  <h1>Finance Hub</h1>
+</header>
+
+<div class="back-button-container">
+  <a href="https://scytale94.github.io/" class="back-button">
+    ⬅ Home
+  </a>
+</div>
+
+<main>
+
+<section>
+  <h2>Precious Metals</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="label">Gold (USD/oz)</div>
+      <div class="value" id="gold-price">--</div>
+    </div>
+    <div class="card">
+      <div class="label">Silver (USD/oz)</div>
+      <div class="value" id="silver-price">--</div>
+    </div>
   </div>
+</section>
 
-    <section>
-      <h2>Precious Metals</h2>
-      <div class="cards">
-        <div class="card">
-          <div class="label">Gold (USD/oz)</div>
-          <div class="value" id="gold-price">--</div>
-        </div>
-        <div class="card">
-          <div class="label">Silver (USD/oz)</div>
-          <div class="value" id="silver-price">--</div>
-        </div>
-        <div class="card metal-calc">
-          <div class="label">Your Metal Holdings</div>
-          <div>
-            Gold oz: <input type="number" id="gold-oz" step="0.01" value="0.12"><br>
-            Silver oz: <input type="number" id="silver-oz" step="0.01" value="45.00"><br>
-            <button onclick="calcMetalValue()">Calculate</button>
-          </div>
-          <div>Total Value: <span id="metal-total">$0.00</span></div>
-        </div>
-      </div>
-    </section>
+<section>
+  <h2>Savings Tracker</h2>
+  <input type="date" id="sav-date" />
+  <input type="number" id="sav-balance" placeholder="$ Balance" step="0.01" />
+  <button onclick="addSavings()">Add</button>
 
-    <section>
-      <h2>Savings Tracker</h2>
-      <div>
-        <input type="date" id="sav-date" />
-        <input type="number" id="sav-balance" placeholder="$ Balance" step="0.01" />
-        <button onclick="addSavings()">Add</button>
-      </div>
-      <table id="savings-table">
-        <thead><tr><th>Date</th><th>Balance</th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <canvas id="savings-chart" style="width:100%; height:300px;"></canvas>
-    </section>
+  <table id="savings-table">
+    <thead>
+      <tr><th>Date</th><th>Balance</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    <section>
-      <h2>Mortgage / Amortization</h2>
-      <div>
-        <input type="number" id="mort-rembal" placeholder="$ Remaining Balance" step="0.01">
-        <input type="number" id="mort-rate" placeholder="Interest Rate (%)" step="0.01" />
-        <input type="number" id="mort-term" placeholder="Term (years)" />
-        <input type="number" id="mort-homeval" placeholder="$ Home Value" step="0.01" />
-        <button onclick="calcMortgage()">Calculate</button>
-      </div>
-      <div id="mort-results">
-        <p>Equity if sold today: <span id="equity">--</span></p>
-        <p>Monthly Interest Portion: <span id="int-part">--</span></p>
-        <p>Monthly Principal Portion: <span id="prin-part">--</span></p>
-        <h3>Amortization Schedule</h3>
-        <table id="mort-table">
-          <thead><tr><th>Month</th><th>Payment</th><th>Interest</th><th>Principal</th><th>Balance</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+  <canvas id="savings-chart"></canvas>
+</section>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    function formatDollar(val){
-      return `$${val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-    }
+</main>
 
-    // ---------- GoldAPI Fetch ----------
-    const GOLDAPI_KEY = "goldapi-5cn2smhey66wk-io";
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function formatDollar(val){
+  return `$${val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+}
+</script>
 
-    async function fetchMetalPrices(){
-      try {
-        const goldResp = await fetch("https://www.goldapi.io/api/XAU/USD", {
-          headers: { "x-access-token": GOLDAPI_KEY }
-        });
-        const silverResp = await fetch("https://www.goldapi.io/api/XAG/USD", {
-          headers: { "x-access-token": GOLDAPI_KEY }
-        });
-
-        const goldData = await goldResp.json();
-        const silverData = await silverResp.json();
-
-        if (goldData.price && silverData.price) {
-          document.getElementById("gold-price").innerText = formatDollar(goldData.price);
-          document.getElementById("silver-price").innerText = formatDollar(silverData.price);
-        } else {
-          console.error("Invalid API response", goldData, silverData);
-        }
-      } catch (err) {
-        console.error("Metal price fetch failed", err);
-      }
-    }
-
-    fetchMetalPrices();
-    setInterval(fetchMetalPrices, 60000);
-
-    function calcMetalValue(){
-      const goldOz = parseFloat(document.getElementById('gold-oz').value)||0;
-      const silverOz = parseFloat(document.getElementById('silver-oz').value)||0;
-      const goldPrice = parseFloat(document.getElementById('gold-price').innerText.replace(/[$,]/g,''))||0;
-      const silverPrice = parseFloat(document.getElementById('silver-price').innerText.replace(/[$,]/g,''))||0;
-      const total = goldOz*goldPrice + silverOz*silverPrice;
-      document.getElementById('metal-total').innerText = formatDollar(total);
-    }
-
-    // ---------- Savings ----------
-    let savings=[];
-    function addSavings(){
-      const dt=document.getElementById('sav-date').value;
-      const bal=parseFloat(document.getElementById('sav-balance').value);
-      if(!dt||isNaN(bal)) return;
-      savings.push({date:dt,balance:bal});
-      renderSavings();
-    }
-    function renderSavings(){
-      const tbody=document.getElementById('savings-table').querySelector('tbody');
-      tbody.innerHTML='';
-      for(let rec of savings){
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${rec.date}</td><td>${formatDollar(rec.balance)}</td>`;
-        tbody.appendChild(tr);
-      }
-      updateSavingsChart();
-    }
-    function updateSavingsChart(){
-      const labels=savings.map(r=>r.date);
-      const data=savings.map(r=>r.balance);
-      if(window._savingsChart) window._savingsChart.destroy();
-      window._savingsChart=new Chart(document.getElementById('savings-chart'),{
-        type:'line',
-        data:{labels,datasets:[{label:'Savings Balance',data,borderColor:'rgba(255,205,55,1)',backgroundColor:'rgba(255,205,55,0.3)',tension:0.2}]},
-        options:{scales:{x:{title:{display:true,text:'Date'}},y:{beginAtZero:false,title:{display:true,text:'Balance (USD)'},ticks:{callback:val=>formatDollar(val)}}},plugins:{tooltip:{callbacks:{label:ctx=>formatDollar(ctx.raw)}}}}
-      });
-    }
-
-    // ---------- Inventory ----------
-    let inventory=[];
-    function addInventory(){
-      const item=document.getElementById('inv-item').value.trim();
-      const room=document.getElementById('inv-room').value.trim();
-      const val=parseFloat(document.getElementById('inv-value').value);
-      const cond=document.getElementById('inv-cond').value.trim();
-      if(!item||isNaN(val)) return;
-      inventory.push({item,room,value:val,cond});
-      renderInventory();
-    }
-    function renderInventory(){
-      const tbody=document.getElementById('inv-table').querySelector('tbody');
-      tbody.innerHTML='';
-      let total=0;
-      inventory.forEach((it,i)=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${it.item}</td><td>${it.room}</td><td>${formatDollar(it.value)}</td><td>${it.cond}</td><td><button onclick="deleteInventory(${i})">Delete</button></td>`;
-        tbody.appendChild(tr);
-        total+=it.value;
-      });
-      document.getElementById('inv-total').innerText=formatDollar(total);
-    }
-    function deleteInventory(index){
-      inventory.splice(index,1);
-      renderInventory();
-    }
-
-    // ---------- Mortgage ----------
-    function calcMortgage(){
-      let balance=parseFloat(document.getElementById('mort-rembal').value);
-      const rate=parseFloat(document.getElementById('mort-rate').value);
-      const term=parseInt(document.getElementById('mort-term').value);
-      const homeVal=parseFloat(document.getElementById('mort-homeval').value);
-      if(isNaN(balance)||isNaN(rate)||isNaN(term)||isNaN(homeVal)) return;
-      const n=term*12;
-      const r=rate/100/12;
-      const payment=(balance*r)/(1-Math.pow(1+r,-n));
-      const tbody=document.getElementById('mort-table').querySelector('tbody');
-      tbody.innerHTML='';
-      for(let m=1;m<=n;m++){
-        const interest=balance*r;
-        const principal=payment-interest;
-        balance-=principal;
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${m}</td><td>${formatDollar(payment)}</td><td>${formatDollar(interest)}</td><td>${formatDollar(principal)}</td><td>${formatDollar(Math.max(balance,0))}</td>`;
-        tbody.appendChild(tr);
-      }
-      const equity=Math.max(homeVal-balance,0);
-      document.getElementById('equity').innerText=formatDollar(equity);
-      document.getElementById('int-part').innerText=formatDollar(payment*r/(r||1));
-      document.getElementById('prin-part').innerText=formatDollar(payment-(payment*r/(r||1)));
-    }
-  </script>
 </body>
 </html>
