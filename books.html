@@ -1,40 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reading Hub</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-
-<div class="back-button-container">
-  <a href="https://scytale94.github.io/" class="tile back-button">⬅ Home</a>
-</div>
-  
 <body>
+
+  <!-- Main Heading -->
   <header>
-    <h1><i class="fa-solid fa-book"></i> Reading Hub</h1>
+    <h1>📚 Reading Hub</h1>
   </header>
 
-    <!-- Back to Home Button -->
-  <div style="margin-bottom: 20px;">
-    <a href="index.html" class="tile" style="width: 120px; height: 50px; padding: 10px; font-size: 1em; display: inline-flex; align-items: center; justify-content: center;">
-      ⬅ Home
-    </a>
+  <!-- Back Button -->
+  <div class="back-button-container">
+    <a href="https://scytale94.github.io/" class="tile back-button">⬅ Home</a>
   </div>
 
-    <!-- Currently Reading -->
+  <main>
+    <!-- Currently Reading Section -->
     <section id="currently-reading-section" class="section">
-      <h2><i class="fa-solid fa-book-open-reader"></i> Currently Reading</h2>
+      <h2>📖 Currently Reading</h2>
       <div id="currently-reading" class="shelf-grid">
         <div class="book-card">Loading…</div>
       </div>
     </section>
 
-    <!-- Want to Read -->
+    <!-- Want to Read Section -->
     <section id="to-read-section" class="section">
-      <h2><i class="fa-solid fa-book-reader"></i> Want to Read</h2>
+      <h2>📚 Want to Read</h2>
       <div id="to-read" class="shelf-grid">
         <div class="book-card">Loading…</div>
       </div>
@@ -42,20 +37,28 @@
 
     <!-- Read Books Table -->
     <section id="read-section" class="section">
-      <h2><i class="fa-solid fa-check-circle"></i> Read Books (Your Records)</h2>
+      <h2>✅ Read Books (Your Records)</h2>
 
+      <!-- Table Controls -->
       <div class="table-controls">
-        <input id="input-title" type="text" placeholder="Title (required)"/>
-        <input id="input-author" type="text" placeholder="Author"/>
-        <input id="input-rating" type="number" step="0.1" min="0" max="10" placeholder="Rating (0.0 - 10.0)"/>
+        <input id="input-title" type="text" placeholder="Title (required)">
+        <input id="input-author" type="text" placeholder="Author">
+        <input id="input-rating" type="number" step="0.1" min="0" max="10" placeholder="Rating (0.0 - 10.0)">
         <button id="add-book">Add</button>
       </div>
 
       <div class="muted-note">Add books you've finished. Ratings are 0.0–10.0. Edits and deletions are saved locally.</div>
 
+      <!-- Books Table -->
       <table id="read-table" aria-live="polite">
         <thead>
-          <tr><th>Title</th><th>Author</th><th>Rating</th><th>Date Added</th><th style="width:140px">Actions</th></tr>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Rating</th>
+            <th>Date Added</th>
+            <th style="width:140px">Actions</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -63,8 +66,9 @@
   </main>
 
 <script>
+// Goodreads API setup
 const GOODREADS_USER_ID = '145950633';
-const GOODSHELF_BASE = 'https://www.goodreads.com/review/list_rss/' + GOODREADS_USER_ID + '?shelf=';
+const GOODSHELF_BASE = `https://www.goodreads.com/review/list_rss/${GOODREADS_USER_ID}?shelf=`;
 const ALL_ORIGINS = 'https://api.allorigins.win/raw?url=';
 
 function proxyUrl(url){ return ALL_ORIGINS + encodeURIComponent(url); }
@@ -75,38 +79,28 @@ function escapeHtml(str){
 
 // Fetch Goodreads shelves
 async function fetchShelf(shelf){
-  const feedUrl = GOODSHELF_BASE + encodeURIComponent(shelf);
-  try{
-    const resp = await fetch(proxyUrl(feedUrl));
+  try {
+    const resp = await fetch(proxyUrl(GOODSHELF_BASE + encodeURIComponent(shelf)));
     const text = await resp.text();
     const xml = new DOMParser().parseFromString(text, 'application/xml');
     const items = Array.from(xml.querySelectorAll('item'));
     return items.map(it=>{
-      const title = (it.querySelector('title') && it.querySelector('title').textContent) || 'Untitled';
-      let author = '';
-      const authorNode = it.querySelector('author name') || it.querySelector('author');
-      if(authorNode) author = authorNode.textContent.trim();
-      else {
-        const m = title.match(/\s+by\s+(.+)$/i);
-        if(m) author = m[1].trim();
-      }
-      const link = it.querySelector('link') ? it.querySelector('link').textContent : '';
+      const title = it.querySelector('title')?.textContent || 'Untitled';
+      let author = it.querySelector('author name')?.textContent || it.querySelector('author')?.textContent || '';
+      const link = it.querySelector('link')?.textContent || '';
       let cover = '';
       const desc = it.querySelector('description')?.textContent || '';
       const m = desc.match(/<img[^>]+src=["']([^"']+)["']/i);
       if(m) cover = m[1];
       return { title, author, link, cover };
     });
-  }catch(err){
-    console.error(err);
-    return null;
-  }
+  } catch(err){ console.error(err); return []; }
 }
 
 function renderShelf(containerId, books){
   const container = document.getElementById(containerId);
   container.innerHTML = '';
-  if(!books || books.length === 0){
+  if(!books || books.length===0){
     container.innerHTML = '<div class="book-card">No books found.</div>';
     return;
   }
@@ -115,12 +109,7 @@ function renderShelf(containerId, books){
     card.className = 'book-card';
     const coverHtml = b.cover ? `<img class="book-cover" src="${b.cover}" alt="${escapeHtml(b.title)}">`
                               : `<div class="book-cover" style="display:flex;align-items:center;justify-content:center;color:#ddd;font-size:0.7rem">No cover</div>`;
-    card.innerHTML = `
-      ${coverHtml}
-      <div class="book-title">${escapeHtml(b.title)}</div>
-      <div class="book-author">${escapeHtml(b.author)}</div>
-      <a class="small-link" href="${b.link}" target="_blank">View</a>
-    `;
+    card.innerHTML = `${coverHtml}<div class="book-title">${escapeHtml(b.title)}</div><div class="book-author">${escapeHtml(b.author)}</div><a class="small-link" href="${b.link}" target="_blank">View</a>`;
     container.appendChild(card);
   });
 }
@@ -131,7 +120,7 @@ async function loadShelves(){
 }
 loadShelves();
 
-// Read Books table (localStorage)
+// Local Read Books Table
 const STORAGE_KEY = 'booksHub.readBooks.v2';
 let readBooks = [];
 const tbody = document.querySelector('#read-table tbody');
@@ -140,68 +129,56 @@ const inputAuthor = document.getElementById('input-author');
 const inputRating = document.getElementById('input-rating');
 
 function saveBooks(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(readBooks)); }
-function loadBooks(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  readBooks = raw ? JSON.parse(raw) : [];
-}
+function loadBooks(){ readBooks = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'); }
 function renderTable(){
   tbody.innerHTML = '';
-  if(readBooks.length === 0){
-    tbody.innerHTML = '<tr><td colspan="5" style="color:var(--muted)">No entries yet.</td></tr>';
-    return;
-  }
+  if(readBooks.length===0){ tbody.innerHTML='<tr><td colspan="5" style="color:var(--muted)">No entries yet.</td></tr>'; return; }
   readBooks.forEach((b,i)=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><strong>${escapeHtml(b.title)}</strong></td>
+    tr.innerHTML = `<td><strong>${escapeHtml(b.title)}</strong></td>
       <td>${escapeHtml(b.author||'')}</td>
-      <td>${b.rating !== undefined && b.rating !== null ? Number(b.rating).toFixed(1) : ''}</td>
-      <td>${b.addedAt ? new Date(b.addedAt).toLocaleDateString() : ''}</td>
+      <td>${b.rating!=null?Number(b.rating).toFixed(1):''}</td>
+      <td>${b.addedAt?new Date(b.addedAt).toLocaleDateString():''}</td>
       <td>
-        <button class="action-btn" data-act="edit" data-i="${i}"><i class="fa-solid fa-pen"></i> Edit</button>
-        <button class="action-btn" data-act="del" data-i="${i}"><i class="fa-solid fa-trash"></i> Del</button>
+        <button class="action-btn" data-act="edit" data-i="${i}">✏️ Edit</button>
+        <button class="action-btn" data-act="del" data-i="${i}">🗑️ Del</button>
       </td>`;
     tbody.appendChild(tr);
   });
 }
 
+// Add Book
 document.getElementById('add-book').addEventListener('click', ()=>{
   const title = inputTitle.value.trim();
   if(!title){ alert('Enter a title'); return; }
-  const author = inputAuthor.value.trim();
   let rating = inputRating.value.trim();
   rating = rating ? parseFloat(rating) : null;
-  if(rating!==null && (isNaN(rating)||rating<0||rating>10)){ alert('Rating must be between 0–10'); return; }
-  readBooks.unshift({title,author,rating,addedAt:new Date().toISOString()});
-  saveBooks();
-  renderTable();
+  if(rating!==null && (isNaN(rating)||rating<0||rating>10)){ alert('Rating must be 0–10'); return; }
+  readBooks.unshift({title, author: inputAuthor.value.trim(), rating, addedAt:new Date().toISOString()});
+  saveBooks(); renderTable();
   inputTitle.value = inputAuthor.value = inputRating.value = '';
 });
 
+// Edit/Delete Buttons
 tbody.addEventListener('click', e=>{
   const btn = e.target.closest('button');
   if(!btn) return;
-  const act = btn.dataset.act;
-  const i = Number(btn.dataset.i);
-  if(act==='del'){
-    if(confirm('Delete this entry?')){ readBooks.splice(i,1); saveBooks(); renderTable(); }
-  }else if(act==='edit'){
+  const act = btn.dataset.act, i = Number(btn.dataset.i);
+  if(act==='del' && confirm('Delete this entry?')){ readBooks.splice(i,1); saveBooks(); renderTable(); }
+  else if(act==='edit'){
     const b = readBooks[i];
     const newTitle = prompt('Title', b.title) || b.title;
-    const newAuthor = prompt('Author', b.author || '') || b.author;
+    const newAuthor = prompt('Author', b.author||'') || b.author;
     let newRating = prompt('Rating (0.0–10.0)', b.rating ?? '');
     if(newRating==='') newRating=null;
-    else {
-      newRating=parseFloat(newRating);
-      if(isNaN(newRating)||newRating<0||newRating>10){alert('Invalid rating');return;}
-    }
+    else { newRating=parseFloat(newRating); if(isNaN(newRating)||newRating<0||newRating>10){alert('Invalid rating');return;} }
     b.title=newTitle.trim(); b.author=newAuthor.trim(); b.rating=newRating;
     saveBooks(); renderTable();
   }
 });
 
-loadBooks();
-renderTable();
+loadBooks(); renderTable();
 </script>
+
 </body>
 </html>
