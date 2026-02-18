@@ -100,7 +100,6 @@
 <body>
   <h1>Music Hub</h1>
 
-  <!-- Back to Home Button -->
   <div style="margin-bottom: 20px;">
     <a href="index.html" class="tile" style="width: 120px; height: 50px; padding: 10px; font-size: 1em; display: inline-flex; align-items: center; justify-content: center;">
       ⬅ Home
@@ -133,10 +132,10 @@
     <table id="albumTable">
       <thead>
         <tr>
-          <th onclick="sortTable(0, false)">Album</th>
-          <th onclick="sortTable(1, false)">Artist</th>
-          <th onclick="sortTable(2, true)">Rating</th>
-          <th onclick="sortTable(3, true)">Year</th>
+          <th onclick="sortTable(0, false)">Album <span id="arrow0"></span></th>
+          <th onclick="sortTable(1, false)">Artist <span id="arrow1"></span></th>
+          <th onclick="sortTable(2, true)">Rating <span id="arrow2"></span></th>
+          <th onclick="sortTable(3, true)">Year <span id="arrow3"></span></th>
           <th>Delete</th>
         </tr>
       </thead>
@@ -150,6 +149,28 @@ const albumCount = document.getElementById('albumCount');
 const yearCount = document.getElementById('yearCount');
 const yearFilter = document.getElementById('yearFilter');
 let sortDirection = {};
+
+function saveToStorage(){
+  const data = [];
+  Array.from(albumTable.rows).forEach(row=>{
+    data.push({
+      name: row.cells[0].textContent,
+      artist: row.cells[1].textContent,
+      rating: row.cells[2].textContent,
+      year: row.cells[3].textContent
+    });
+  });
+  localStorage.setItem('albums', JSON.stringify(data));
+}
+
+function loadFromStorage(){
+  const data = JSON.parse(localStorage.getItem('albums') || '[]');
+  data.forEach(item=>{
+    insertRow(item.name,item.artist,item.rating,item.year,false);
+  });
+  updateCounts();
+  updateYearFilter();
+}
 
 function addAlbum() {
   const name = albumName.value.trim();
@@ -166,9 +187,10 @@ function addAlbum() {
   albumName.value = artistName.value = albumRating.value = albumYear.value = '';
   updateCounts();
   updateYearFilter();
+  saveToStorage();
 }
 
-function insertRow(name, artist, rating, year){
+function insertRow(name, artist, rating, year, save=true){
   const rowEl = albumTable.insertRow();
   rowEl.insertCell(0).textContent = name;
   rowEl.insertCell(1).textContent = artist;
@@ -177,8 +199,20 @@ function insertRow(name, artist, rating, year){
   const delCell = rowEl.insertCell(4);
   const delBtn = document.createElement('button');
   delBtn.textContent = '✖';
-  delBtn.onclick = () => { albumTable.deleteRow(rowEl.rowIndex - 1); updateCounts(); updateYearFilter(); };
+  delBtn.onclick = () => { 
+    albumTable.deleteRow(rowEl.rowIndex - 1); 
+    updateCounts(); 
+    updateYearFilter(); 
+    saveToStorage();
+  };
   delCell.appendChild(delBtn);
+  if(save) saveToStorage();
+}
+
+function clearArrows(){
+  for(let i=0;i<4;i++){
+    document.getElementById('arrow'+i).textContent='';
+  }
 }
 
 function sortTable(colIndex, numeric){
@@ -197,6 +231,11 @@ function sortTable(colIndex, numeric){
 
   albumTable.innerHTML='';
   rows.forEach(r=>albumTable.appendChild(r));
+
+  clearArrows();
+  document.getElementById('arrow'+colIndex).textContent = dir===1 ? '▲' : '▼';
+
+  saveToStorage();
 }
 
 function importCSV(event){
@@ -214,6 +253,7 @@ function importCSV(event){
     });
     updateCounts();
     updateYearFilter();
+    saveToStorage();
   };
   reader.readAsText(file);
 }
@@ -270,6 +310,8 @@ function exportCSV() {
   link.click();
   document.body.removeChild(link);
 }
+
+loadFromStorage();
 </script>
 </body>
 </html>
