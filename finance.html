@@ -1,70 +1,124 @@
 <!DOCTYPE html>
-
 <html lang="en">
-  
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Finance Hub</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-
-<div class="back-button-container">
-  <a href="https://scytale94.github.io/" class="tile back-button">⬅ Home</a>
-</div>
-  
 <body>
 
-<header>
+  <!-- Main Heading -->
   <h1>Finance Hub</h1>
-</header>
 
-<div class="back-button-container">
-  <a href="https://scytale94.github.io/" class="back-button">
-    ⬅ Home
-  </a>
-</div>
+  <!-- Centered Back Button -->
+  <div class="back-button-container">
+    <a href="https://scytale94.github.io/" class="tile back-button">
+      ⬅ Home
+    </a>
+  </div>
 
-<main>
-
-<section>
-  <h2>Precious Metals</h2>
-  <div class="cards">
-    <div class="card">
-      <div class="label">Gold (USD/oz)</div>
-      <div class="value" id="gold-price">--</div>
-    </div>
-    <div class="card">
-      <div class="label">Silver (USD/oz)</div>
-      <div class="value" id="silver-price">--</div>
+  <!-- Precious Metals Section -->
+  <div class="section">
+    <h2>Precious Metals</h2>
+    <div class="tiles">
+      <div class="tile card">
+        <div class="label">Gold (USD/oz)</div>
+        <div class="value" id="gold-price">--</div>
+      </div>
+      <div class="tile card">
+        <div class="label">Silver (USD/oz)</div>
+        <div class="value" id="silver-price">--</div>
+      </div>
     </div>
   </div>
-</section>
 
-<section>
-  <h2>Savings Tracker</h2>
-  <input type="date" id="sav-date" />
-  <input type="number" id="sav-balance" placeholder="$ Balance" step="0.01" />
-  <button onclick="addSavings()">Add</button>
+  <!-- Savings Tracker Section -->
+  <div class="section">
+    <h2>Savings Tracker</h2>
+    <div>
+      <input type="date" id="sav-date" />
+      <input type="number" id="sav-balance" placeholder="$ Balance" step="0.01" />
+      <button onclick="addSavings()">Add</button>
+    </div>
 
-  <table id="savings-table">
-    <thead>
-      <tr><th>Date</th><th>Balance</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <table id="savings-table">
+      <thead>
+        <tr><th>Date</th><th>Balance</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-  <canvas id="savings-chart"></canvas>
-</section>
+    <canvas id="savings-chart"></canvas>
+  </div>
 
-</main>
+  <!-- Chart.js and Utilities -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function formatDollar(val){
+      return `$${val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-function formatDollar(val){
-  return `$${val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-}
-</script>
+    // Example savings array
+    const savingsTable = document.getElementById('savings-table').getElementsByTagName('tbody')[0];
+    const savingsChartEl = document.getElementById('savings-chart');
+    let savingsData = [];
+
+    function addSavings() {
+      const date = document.getElementById('sav-date').value;
+      const balance = parseFloat(document.getElementById('sav-balance').value);
+      if (!date || isNaN(balance)) {
+        alert('Please enter both a valid date and balance.');
+        return;
+      }
+      savingsData.push({ date, balance });
+      renderSavingsTable();
+      renderSavingsChart();
+      document.getElementById('sav-date').value = '';
+      document.getElementById('sav-balance').value = '';
+    }
+
+    function renderSavingsTable() {
+      savingsTable.innerHTML = '';
+      savingsData.forEach(entry => {
+        const row = savingsTable.insertRow();
+        row.insertCell(0).textContent = entry.date;
+        row.insertCell(1).textContent = formatDollar(entry.balance);
+      });
+    }
+
+    let savingsChart;
+    function renderSavingsChart() {
+      const labels = savingsData.map(d => d.date);
+      const balances = savingsData.map(d => d.balance);
+
+      if (savingsChart) savingsChart.destroy();
+
+      savingsChart = new Chart(savingsChartEl, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Balance',
+            data: balances,
+            borderColor: 'var(--accent)',
+            backgroundColor: 'rgba(142,36,170,0.2)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { ticks: { callback: function(val) { return formatDollar(val); } } }
+          }
+        }
+      });
+    }
+  </script>
 
 </body>
 </html>
