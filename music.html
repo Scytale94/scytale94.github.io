@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-  
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Music Hub</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-
-  
 <body>
+
+  <!-- Main Heading -->
   <h1>Music Hub</h1>
 
-<div class="back-button-container">
-  <a href="https://scytale94.github.io/" class="tile back-button">
-    ⬅ Home
-  </a>
-</div>
+  <!-- Centered Back Button -->
+  <div class="back-button-container">
+    <a href="https://scytale94.github.io/" class="tile back-button">
+      ⬅ Home
+    </a>
+  </div>
 
+  <!-- Albums Section -->
   <div class="section">
     <h2>Albums Listened To</h2>
     <p>Overall albums logged: <span id="albumCount">0</span></p>
     <p>Albums for selected year: <span id="yearCount">0</span></p>
 
+    <!-- Inputs and Actions -->
     <div>
       <input type="text" id="albumName" placeholder="Album name" />
       <input type="text" id="artistName" placeholder="Artist name" />
@@ -37,6 +39,7 @@
       </select>
     </div>
 
+    <!-- Albums Table -->
     <table id="albumTable">
       <thead>
         <tr>
@@ -51,175 +54,177 @@
     </table>
   </div>
 
-<script>
-const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
-const albumCount = document.getElementById('albumCount');
-const yearCount = document.getElementById('yearCount');
-const yearFilter = document.getElementById('yearFilter');
-let sortDirection = {};
+  <!-- Script -->
+  <script>
+    const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
+    const albumCount = document.getElementById('albumCount');
+    const yearCount = document.getElementById('yearCount');
+    const yearFilter = document.getElementById('yearFilter');
+    let sortDirection = {};
 
-function saveToStorage(){
-  const data = [];
-  Array.from(albumTable.rows).forEach(row=>{
-    data.push({
-      name: row.cells[0].textContent,
-      artist: row.cells[1].textContent,
-      rating: row.cells[2].textContent,
-      year: row.cells[3].textContent
-    });
-  });
-  localStorage.setItem('albums', JSON.stringify(data));
-}
-
-function loadFromStorage(){
-  const data = JSON.parse(localStorage.getItem('albums') || '[]');
-  data.forEach(item=>{
-    insertRow(item.name,item.artist,item.rating,item.year,false);
-  });
-  updateCounts();
-  updateYearFilter();
-}
-
-function addAlbum() {
-  const name = albumName.value.trim();
-  const artist = artistName.value.trim();
-  const rating = albumRating.value.trim();
-  const year = albumYear.value.trim();
-
-  if(!name || !artist || !rating || !year) {
-    alert('Please fill out all fields.');
-    return;
-  }
-
-  insertRow(name, artist, rating, year);
-  albumName.value = artistName.value = albumRating.value = albumYear.value = '';
-  updateCounts();
-  updateYearFilter();
-  saveToStorage();
-}
-
-function insertRow(name, artist, rating, year, save=true){
-  const rowEl = albumTable.insertRow();
-  rowEl.insertCell(0).textContent = name;
-  rowEl.insertCell(1).textContent = artist;
-  rowEl.insertCell(2).textContent = rating;
-  rowEl.insertCell(3).textContent = year;
-  const delCell = rowEl.insertCell(4);
-  const delBtn = document.createElement('button');
-  delBtn.textContent = '✖';
-  delBtn.onclick = () => { 
-    albumTable.deleteRow(rowEl.rowIndex - 1); 
-    updateCounts(); 
-    updateYearFilter(); 
-    saveToStorage();
-  };
-  delCell.appendChild(delBtn);
-  if(save) saveToStorage();
-}
-
-function clearArrows(){
-  for(let i=0;i<4;i++){
-    document.getElementById('arrow'+i).textContent='';
-  }
-}
-
-function sortTable(colIndex, numeric){
-  const rows = Array.from(albumTable.rows);
-  sortDirection[colIndex] = !sortDirection[colIndex];
-  const dir = sortDirection[colIndex] ? 1 : -1;
-
-  rows.sort((a,b)=>{
-    let valA = a.cells[colIndex].textContent;
-    let valB = b.cells[colIndex].textContent;
-    if(numeric){
-      return (parseFloat(valA)-parseFloat(valB))*dir;
+    function saveToStorage(){
+      const data = [];
+      Array.from(albumTable.rows).forEach(row=>{
+        data.push({
+          name: row.cells[0].textContent,
+          artist: row.cells[1].textContent,
+          rating: row.cells[2].textContent,
+          year: row.cells[3].textContent
+        });
+      });
+      localStorage.setItem('albums', JSON.stringify(data));
     }
-    return valA.localeCompare(valB)*dir;
-  });
 
-  albumTable.innerHTML='';
-  rows.forEach(r=>albumTable.appendChild(r));
+    function loadFromStorage(){
+      const data = JSON.parse(localStorage.getItem('albums') || '[]');
+      data.forEach(item=>{
+        insertRow(item.name,item.artist,item.rating,item.year,false);
+      });
+      updateCounts();
+      updateYearFilter();
+    }
 
-  clearArrows();
-  document.getElementById('arrow'+colIndex).textContent = dir===1 ? '▲' : '▼';
+    function addAlbum() {
+      const name = albumName.value.trim();
+      const artist = artistName.value.trim();
+      const rating = albumRating.value.trim();
+      const year = albumYear.value.trim();
 
-  saveToStorage();
-}
-
-function importCSV(event){
-  const file = event.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const lines = e.target.result.split('\n').slice(1);
-    lines.forEach(line=>{
-      if(!line.trim()) return;
-      const [name,artist,rating,year] = line.split(',').map(v=>v.replace(/"/g,'').trim());
-      if(name && artist && rating && year){
-        insertRow(name,artist,rating,year);
+      if(!name || !artist || !rating || !year) {
+        alert('Please fill out all fields.');
+        return;
       }
-    });
-    updateCounts();
-    updateYearFilter();
-    saveToStorage();
-  };
-  reader.readAsText(file);
-}
 
-function updateCounts() {
-  albumCount.textContent = albumTable.rows.length;
-  filterByYear();
-}
-
-function updateYearFilter() {
-  const years = new Set();
-  Array.from(albumTable.rows).forEach(row => years.add(row.cells[3].textContent));
-  const currentValue = yearFilter.value;
-  yearFilter.innerHTML = '<option value="all">All Years</option>';
-  Array.from(years).sort().forEach(y => {
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    yearFilter.appendChild(opt);
-  });
-  if(Array.from(yearFilter.options).some(o => o.value === currentValue)) {
-    yearFilter.value = currentValue;
-  }
-  filterByYear();
-}
-
-function filterByYear() {
-  const selected = yearFilter.value;
-  let count = 0;
-  Array.from(albumTable.rows).forEach(row => {
-    if(selected === 'all' || row.cells[3].textContent === selected) {
-      row.style.display = '';
-      count++;
-    } else {
-      row.style.display = 'none';
+      insertRow(name, artist, rating, year);
+      albumName.value = artistName.value = albumRating.value = albumYear.value = '';
+      updateCounts();
+      updateYearFilter();
+      saveToStorage();
     }
-  });
-  yearCount.textContent = count;
-}
 
-function exportCSV() {
-  let csvContent = 'Album,Artist,Rating,Year\n';
-  Array.from(albumTable.rows).forEach(row => {
-    const cells = row.cells;
-    if(cells.length < 4) return;
-    csvContent += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].textContent}"\n`;
-  });
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'albums.csv');
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+    function insertRow(name, artist, rating, year, save=true){
+      const rowEl = albumTable.insertRow();
+      rowEl.insertCell(0).textContent = name;
+      rowEl.insertCell(1).textContent = artist;
+      rowEl.insertCell(2).textContent = rating;
+      rowEl.insertCell(3).textContent = year;
+      const delCell = rowEl.insertCell(4);
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✖';
+      delBtn.onclick = () => { 
+        albumTable.deleteRow(rowEl.rowIndex - 1); 
+        updateCounts(); 
+        updateYearFilter(); 
+        saveToStorage();
+      };
+      delCell.appendChild(delBtn);
+      if(save) saveToStorage();
+    }
 
-loadFromStorage();
-</script>
+    function clearArrows(){
+      for(let i=0;i<4;i++){
+        document.getElementById('arrow'+i).textContent='';
+      }
+    }
+
+    function sortTable(colIndex, numeric){
+      const rows = Array.from(albumTable.rows);
+      sortDirection[colIndex] = !sortDirection[colIndex];
+      const dir = sortDirection[colIndex] ? 1 : -1;
+
+      rows.sort((a,b)=>{
+        let valA = a.cells[colIndex].textContent;
+        let valB = b.cells[colIndex].textContent;
+        if(numeric){
+          return (parseFloat(valA)-parseFloat(valB))*dir;
+        }
+        return valA.localeCompare(valB)*dir;
+      });
+
+      albumTable.innerHTML='';
+      rows.forEach(r=>albumTable.appendChild(r));
+
+      clearArrows();
+      document.getElementById('arrow'+colIndex).textContent = dir===1 ? '▲' : '▼';
+
+      saveToStorage();
+    }
+
+    function importCSV(event){
+      const file = event.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        const lines = e.target.result.split('\n').slice(1);
+        lines.forEach(line=>{
+          if(!line.trim()) return;
+          const [name,artist,rating,year] = line.split(',').map(v=>v.replace(/"/g,'').trim());
+          if(name && artist && rating && year){
+            insertRow(name,artist,rating,year);
+          }
+        });
+        updateCounts();
+        updateYearFilter();
+        saveToStorage();
+      };
+      reader.readAsText(file);
+    }
+
+    function updateCounts() {
+      albumCount.textContent = albumTable.rows.length;
+      filterByYear();
+    }
+
+    function updateYearFilter() {
+      const years = new Set();
+      Array.from(albumTable.rows).forEach(row => years.add(row.cells[3].textContent));
+      const currentValue = yearFilter.value;
+      yearFilter.innerHTML = '<option value="all">All Years</option>';
+      Array.from(years).sort().forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yearFilter.appendChild(opt);
+      });
+      if(Array.from(yearFilter.options).some(o => o.value === currentValue)) {
+        yearFilter.value = currentValue;
+      }
+      filterByYear();
+    }
+
+    function filterByYear() {
+      const selected = yearFilter.value;
+      let count = 0;
+      Array.from(albumTable.rows).forEach(row => {
+        if(selected === 'all' || row.cells[3].textContent === selected) {
+          row.style.display = '';
+          count++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+      yearCount.textContent = count;
+    }
+
+    function exportCSV() {
+      let csvContent = 'Album,Artist,Rating,Year\n';
+      Array.from(albumTable.rows).forEach(row => {
+        const cells = row.cells;
+        if(cells.length < 4) return;
+        csvContent += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].textContent}"\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'albums.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    loadFromStorage();
+  </script>
+
 </body>
 </html>
