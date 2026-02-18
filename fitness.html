@@ -1,206 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fitness Hub</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-  
-<div class="back-button-container">
-  <a href="https://scytale94.github.io/" class="tile back-button">⬅ Home</a>
-</div>
-
 <body>
-<header>
-  <h1>Running Hub</h1>
-</header>
-<main>
-    <!-- Back to Home Button -->
-  <div style="margin-bottom: 20px;">
-    <a href="index.html" class="tile" style="width: 120px; height: 50px; padding: 10px; font-size: 1em; display: inline-flex; align-items: center; justify-content: center;">
+
+  <!-- Main Heading -->
+  <h1>Fitness Hub</h1>
+
+  <!-- Centered Back Button -->
+  <div class="back-button-container">
+    <a href="https://scytale94.github.io/" class="tile back-button">
       ⬅ Home
     </a>
   </div>
 
-<section>
-  <h2>Log Today's Run</h2>
-  <div>
-    <input type="date" id="run-date">
-    <input type="number" id="run-distance" placeholder="Miles" step="0.01">
-    <input type="text" id="run-notes" placeholder="Notes">
-    <button onclick="addRun()">Add Run</button>
-  </div>
-  <table id="runs-table">
-    <thead><tr><th>Date</th><th>Miles</th><th>Notes</th><th>Action</th></tr></thead>
-    <tbody></tbody>
-  </table>
-</section>
-
-<section>
-  <h2>Yearly Mileage</h2>
-  <div class="cards">
-    <div class="card">
-      <div class="label">Current Year</div>
-      <div class="value" id="year-miles">0</div>
+  <!-- Log Today's Run Section -->
+  <div class="section">
+    <h2>Log Today's Run</h2>
+    <div>
+      <input type="date" id="run-date" />
+      <input type="number" id="run-distance" placeholder="Miles" step="0.01" />
+      <input type="text" id="run-notes" placeholder="Notes" />
+      <button onclick="addRun()">Add Run</button>
     </div>
-    <div class="card">
-      <div class="label">All-Time</div>
-      <div class="value" id="all-miles">0</div>
-    </div>
+
+    <table id="runs-table">
+      <thead>
+        <tr><th>Date</th><th>Miles</th><th>Notes</th><th>Action</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
-  <div>
-    <label>Yearly Mileage Goal: </label>
-    <input type="number" id="year-goal" placeholder="Miles" oninput="updateGoal()">
-    <div class="progress-container">
-      <div class="progress-fill" id="goal-progress"></div>
+
+  <!-- Yearly Mileage Section -->
+  <div class="section">
+    <h2>Yearly Mileage</h2>
+    <div class="tiles">
+      <div class="tile card">
+        <div class="label">Current Year</div>
+        <div class="value" id="year-miles">0</div>
+      </div>
+      <div class="tile card">
+        <div class="label">All-Time</div>
+        <div class="value" id="all-miles">0</div>
+      </div>
     </div>
+    <div>
+      <label>Yearly Mileage Goal: </label>
+      <input type="number" id="year-goal" placeholder="Miles" oninput="updateGoal()" />
+      <div class="progress-container">
+        <div class="progress-fill" id="goal-progress"></div>
+      </div>
+    </div>
+    <canvas id="mileage-chart" style="width:100%; height:300px; margin-top:20px;"></canvas>
   </div>
-  <canvas id="mileage-chart" style="width:100%; height:300px; margin-top:20px;"></canvas>
-</section>
 
-<section>
-  <h2>Personal Records</h2>
-  <table id="prs-table">
-    <thead><tr><th>Distance</th><th>Time</th><th>Date</th></tr></thead>
-    <tbody></tbody>
-  </table>
-  <canvas id="pr-chart" style="width:100%; height:300px; margin-top:20px;"></canvas>
-</section>
+  <!-- Personal Records Section -->
+  <div class="section">
+    <h2>Personal Records</h2>
+    <table id="prs-table">
+      <thead>
+        <tr><th>Distance</th><th>Time</th><th>Date</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <canvas id="pr-chart" style="width:100%; height:300px; margin-top:20px;"></canvas>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-// ---------- Storage ----------
-let runs = JSON.parse(localStorage.getItem('runs')||'[]');
-let yearlyGoal = parseFloat(localStorage.getItem('yearGoal'))||0;
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // ---------- Storage ----------
+    let runs = JSON.parse(localStorage.getItem('runs')||'[]');
+    let yearlyGoal = parseFloat(localStorage.getItem('yearGoal'))||0;
 
-// ---------- PRs ----------
-let prs = [
-  {distance:"1 Mile", time:"6:00", date:"2/11/20"},
-  {distance:"2 Miles", time:"12:38", date:"5/30/24"},
-  {distance:"3 Miles", time:"19:58", date:"5/7/24"},
-  {distance:"5K", time:"20:12", date:"12/2/23"},
-  {distance:"4 Miles", time:"27:28", date:"5/29/24"},
-  {distance:"5 Miles", time:"34:53", date:"5/6/24"},
-  {distance:"6 Miles", time:"42:30", date:"6/13/24"},
-  {distance:"10K", time:"43:30", date:"2/23/19"},
-  {distance:"7 Miles", time:"52:16", date:"1/17/20"},
-  {distance:"8 Miles", time:"59:32", date:"2/14/20"},
-  {distance:"9 Miles", time:"67:35", date:"5/24/24"},
-  {distance:"10 Miles", time:"76:15", date:"2/23/20"},
-  {distance:"11 Miles", time:"85:03", date:"2/29/20"},
-  {distance:"Half Marathon", time:"1:46:08", date:"3/8/20"},
-  {distance:"14 Miles", time:"2:00:43", date:"3/6/22"},
-  {distance:"20 Miles", time:"3:03:08", date:"9/28/24"},
-  {distance:"Marathon", time:"4:12:50", date:"10/15/24"},
-];
+    // ---------- PRs ----------
+    let prs = [
+      {distance:"1 Mile", time:"6:00", date:"2/11/20"},
+      {distance:"2 Miles", time:"12:38", date:"5/30/24"},
+      {distance:"3 Miles", time:"19:58", date:"5/7/24"},
+      {distance:"5K", time:"20:12", date:"12/2/23"},
+      {distance:"4 Miles", time:"27:28", date:"5/29/24"},
+      {distance:"5 Miles", time:"34:53", date:"5/6/24"},
+      {distance:"6 Miles", time:"42:30", date:"6/13/24"},
+      {distance:"10K", time:"43:30", date:"2/23/19"},
+      {distance:"7 Miles", time:"52:16", date:"1/17/20"},
+      {distance:"8 Miles", time:"59:32", date:"2/14/20"},
+      {distance:"9 Miles", time:"67:35", date:"5/24/24"},
+      {distance:"10 Miles", time:"76:15", date:"2/23/20"},
+      {distance:"11 Miles", time:"85:03", date:"2/29/20"},
+      {distance:"Half Marathon", time:"1:46:08", date:"3/8/20"},
+      {distance:"14 Miles", time:"2:00:43", date:"3/6/22"},
+      {distance:"20 Miles", time:"3:03:08", date:"9/28/24"},
+      {distance:"Marathon", time:"4:12:50", date:"10/15/24"},
+    ];
 
-// ---------- Add Run ----------
-function addRun(){
-  const date=document.getElementById('run-date').value;
-  const miles=parseFloat(document.getElementById('run-distance').value);
-  const notes=document.getElementById('run-notes').value.trim();
-  if(!date||isNaN(miles)) return;
-  runs.push({date,miles,notes});
-  localStorage.setItem('runs',JSON.stringify(runs));
-  updateStats();
-}
+    // ---------- Add Run ----------
+    function addRun(){
+      const date=document.getElementById('run-date').value;
+      const miles=parseFloat(document.getElementById('run-distance').value);
+      const notes=document.getElementById('run-notes').value.trim();
+      if(!date||isNaN(miles)) return;
+      runs.push({date,miles,notes});
+      localStorage.setItem('runs',JSON.stringify(runs));
+      updateStats();
+    }
 
-// ---------- Delete Run ----------
-function deleteRun(index){
-  runs.splice(index,1);
-  localStorage.setItem('runs',JSON.stringify(runs));
-  updateStats();
-}
+    // ---------- Delete Run ----------
+    function deleteRun(index){
+      runs.splice(index,1);
+      localStorage.setItem('runs',JSON.stringify(runs));
+      updateStats();
+    }
 
-// ---------- Update Stats ----------
-function updateStats(){
-  const tbody=document.getElementById('runs-table').querySelector('tbody');
-  tbody.innerHTML='';
-  let yearMiles=0,allMiles=0;
-  const currentYear=new Date().getFullYear();
-  const monthlyMiles={};
-  runs.forEach((run,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${run.date}</td><td>${run.miles.toFixed(2)}</td><td>${run.notes}</td>
-    <td><button onclick="deleteRun(${i})">Delete</button></td>`;
-    tbody.appendChild(tr);
-    allMiles+=run.miles;
-    if(new Date(run.date).getFullYear()===currentYear) yearMiles+=run.miles;
-    const month=new Date(run.date).toISOString().slice(0,7);
-    monthlyMiles[month]=(monthlyMiles[month]||0)+run.miles;
-  });
-  document.getElementById('year-miles').innerText=yearMiles.toFixed(2);
-  document.getElementById('all-miles').innerText=allMiles.toFixed(2);
-  updateMileageChart(monthlyMiles);
-  updateGoalProgress(yearMiles);
-  renderPRTable();
-  renderPRChart();
-}
+    // ---------- Update Stats ----------
+    function updateStats(){
+      const tbody=document.getElementById('runs-table').querySelector('tbody');
+      tbody.innerHTML='';
+      let yearMiles=0,allMiles=0;
+      const currentYear=new Date().getFullYear();
+      const monthlyMiles={};
+      runs.forEach((run,i)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${run.date}</td><td>${run.miles.toFixed(2)}</td><td>${run.notes}</td>
+        <td><button onclick="deleteRun(${i})">Delete</button></td>`;
+        tbody.appendChild(tr);
+        allMiles+=run.miles;
+        if(new Date(run.date).getFullYear()===currentYear) yearMiles+=run.miles;
+        const month=new Date(run.date).toISOString().slice(0,7);
+        monthlyMiles[month]=(monthlyMiles[month]||0)+run.miles;
+      });
+      document.getElementById('year-miles').innerText=yearMiles.toFixed(2);
+      document.getElementById('all-miles').innerText=allMiles.toFixed(2);
+      updateMileageChart(monthlyMiles);
+      updateGoalProgress(yearMiles);
+      renderPRTable();
+      renderPRChart();
+    }
 
-// ---------- PR Table & Chart ----------
-function renderPRTable(){
-  const tbody=document.getElementById('prs-table').querySelector('tbody');
-  tbody.innerHTML='';
-  for(let pr of prs){
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${pr.distance}</td><td>${pr.time}</td><td>${pr.date}</td>`;
-    tbody.appendChild(tr);
-  }
-}
+    // ---------- PR Table & Chart ----------
+    function renderPRTable(){
+      const tbody=document.getElementById('prs-table').querySelector('tbody');
+      tbody.innerHTML='';
+      for(let pr of prs){
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${pr.distance}</td><td>${pr.time}</td><td>${pr.date}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
 
-function updateMileageChart(data){
-  const labels=Object.keys(data).sort();
-  const values=labels.map(l=>data[l]);
-  if(window._mileageChart) window._mileageChart.destroy();
-  window._mileageChart=new Chart(document.getElementById('mileage-chart'),{
-    type:'bar',
-    data:{labels,datasets:[{label:'Miles per Month',data:values,backgroundColor:'rgba(255,205,55,0.7)'}]},
-    options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Miles'}}}}
-  });
-}
+    function updateMileageChart(data){
+      const labels=Object.keys(data).sort();
+      const values=labels.map(l=>data[l]);
+      if(window._mileageChart) window._mileageChart.destroy();
+      window._mileageChart=new Chart(document.getElementById('mileage-chart'),{
+        type:'bar',
+        data:{labels,datasets:[{label:'Miles per Month',data:values,backgroundColor:'rgba(255,205,55,0.7)'}]},
+        options:{scales:{y:{beginAtZero:true,title:{display:true,text:'Miles'}}}}
+      });
+    }
 
-function renderPRChart(){
-  const distances=prs.map(p=>{
-    if(p.distance.includes("Mile")) return parseFloat(p.distance);
-    if(p.distance==="5K") return 3.10686;
-    if(p.distance==="10K") return 6.21371;
-    if(p.distance==="Half Marathon") return 13.1094;
-    if(p.distance==="Marathon") return 26.2188;
-    return null;
-  }).filter(x=>x!==null);
-  const times=prs.map(p=>{
-    const parts=p.time.split(':').map(Number);
-    if(parts.length===3) return parts[0]*3600+parts[1]*60+parts[2];
-    else if(parts.length===2) return parts[0]*60+parts[1];
-    return 0;
-  });
-  if(window._prChart) window._prChart.destroy();
-  window._prChart=new Chart(document.getElementById('pr-chart'),{
-    type:'line',
-    data:{labels:distances,datasets:[{label:'PR Time (s)',data:times,borderColor:'rgba(255,205,55,1)',tension:0.2,fill:false}]},
-    options:{scales:{x:{title:{display:true,text:'Distance (miles)'}},y:{title:{display:true,text:'Time (seconds)'}}}}
-  });
-}
+    function renderPRChart(){
+      const distances=prs.map(p=>{
+        if(p.distance.includes("Mile")) return parseFloat(p.distance);
+        if(p.distance==="5K") return 3.10686;
+        if(p.distance==="10K") return 6.21371;
+        if(p.distance==="Half Marathon") return 13.1094;
+        if(p.distance==="Marathon") return 26.2188;
+        return null;
+      }).filter(x=>x!==null);
+      const times=prs.map(p=>{
+        const parts=p.time.split(':').map(Number);
+        if(parts.length===3) return parts[0]*3600+parts[1]*60+parts[2];
+        else if(parts.length===2) return parts[0]*60+parts[1];
+        return 0;
+      });
+      if(window._prChart) window._prChart.destroy();
+      window._prChart=new Chart(document.getElementById('pr-chart'),{
+        type:'line',
+        data:{labels:distances,datasets:[{label:'PR Time (s)',data:times,borderColor:'rgba(255,205,55,1)',tension:0.2,fill:false}]},
+        options:{scales:{x:{title:{display:true,text:'Distance (miles)'}},y:{title:{display:true,text:'Time (seconds)'}}}}
+      });
+    }
 
-// ---------- Goal Progress ----------
-function updateGoalProgress(yearMiles){
-  if(!yearlyGoal) return;
-  let percent=Math.min(100,(yearMiles/yearlyGoal)*100);
-  document.getElementById('goal-progress').style.width=percent+'%';
-}
+    // ---------- Goal Progress ----------
+    function updateGoalProgress(yearMiles){
+      if(!yearlyGoal) return;
+      let percent=Math.min(100,(yearMiles/yearlyGoal)*100);
+      document.getElementById('goal-progress').style.width=percent+'%';
+    }
 
-function updateGoal(){
-  yearlyGoal=parseFloat(document.getElementById('year-goal').value)||0;
-  localStorage.setItem('yearGoal',yearlyGoal);
-  const currentYearMiles=parseFloat(document.getElementById('year-miles').innerText)||0;
-  updateGoalProgress(currentYearMiles);
-}
+    function updateGoal(){
+      yearlyGoal=parseFloat(document.getElementById('year-goal').value)||0;
+      localStorage.setItem('yearGoal',yearlyGoal);
+      const currentYearMiles=parseFloat(document.getElementById('year-miles').innerText)||0;
+      updateGoalProgress(currentYearMiles);
+    }
 
-// ---------- Initialize ----------
-document.getElementById('year-goal').value=yearlyGoal;
-updateStats();
-</script>
+    // ---------- Initialize ----------
+    document.getElementById('year-goal').value=yearlyGoal;
+    updateStats();
+  </script>
+
 </body>
 </html>
