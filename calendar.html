@@ -1,57 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+  
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calendar Hub</title>
-<style>
-:root {
-  --bg: #2a1b2e;
-  --section-bg: #3b2640;
-  --card-bg: #4b2b50;
-  --text: #f3e5f5;
-  --muted: #dcdcdc;
-  --accent: #8e24aa;
-  --hover: #7b1fa2;
-  --work: #d32f2f;
-  --personal: #fbc02d;
-  --family: #388e3c;
-  --holiday: #1976d2;
-}
-body {
-  margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg); color: var(--text);
-}
-header {
-  background: var(--section-bg); text-align:center; padding:20px;
-}
-header h1 { margin:0; font-size:2em; }
-button { 
-  cursor:pointer; border:none; padding:6px 12px; border-radius:6px; background:var(--accent); color:#fff;
-}
-button:hover { background:var(--hover); }
-nav { display:flex; justify-content:space-between; margin:15px 20px; flex-wrap:wrap; gap:10px; }
-.calendar-container { max-width:1000px; margin:0 auto 50px; }
-.calendar-header { text-align:center; font-size:1.6em; margin-bottom:10px; }
-.calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; background:var(--section-bg); border-radius:10px; padding:5px; }
-.day-header { text-align:center; padding:5px 0; font-weight:bold; }
-.date-cell { min-height:120px; background:var(--card-bg); padding:4px; border-radius:6px; position:relative; overflow:hidden; cursor:pointer; }
-.date-number { font-weight:bold; margin-bottom:2px; }
-.event { padding:2px 4px; margin:1px 0; border-radius:4px; font-size:0.8em; color:#fff; display:flex; justify-content:space-between; align-items:center; }
-.event.work { background:var(--work); }
-.event.personal { background:var(--personal); }
-.event.family { background:var(--family); }
-.event.holiday { background:var(--holiday); cursor:default; }
-.event button { margin-left:5px; padding:2px 4px; font-size:0.7em; background:var(--hover); }
-.popup { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; display:none; z-index:999; }
-.popup-content { background:var(--section-bg); padding:20px; border-radius:12px; width:300px; max-width:90%; color:var(--text); position:relative; }
-.popup-content h2 { margin-top:0; }
-.popup-content label { display:block; margin-top:10px; font-size:0.9em; }
-.popup-content input, .popup-content select { width:100%; padding:6px; border-radius:6px; border:none; background:var(--card-bg); color:var(--text); margin-top:3px; }
-.popup-content .actions { margin-top:15px; display:flex; justify-content:space-between; }
-.close-btn { position:absolute; top:10px; right:10px; cursor:pointer; font-weight:bold; font-size:1.2em; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar Hub</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
+
+<div class="back-button-container">
+  <a href="https://scytale94.github.io/" class="tile back-button">⬅ Home</a>
+</div>
+  
 <body>
 <header>
   <h1>Calendar Hub</h1>
