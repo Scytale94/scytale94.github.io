@@ -30,6 +30,7 @@
     <h2>Albums Listened To</h2>
     <p>Overall albums logged: <span id="albumCount">0</span></p>
     <p>Albums for selected year: <span id="yearCount">0</span></p>
+    <p>Average Rating: <span id="avgRating">0.0</span></p>
 
     <!-- Inputs and Actions -->
     <div>
@@ -66,6 +67,7 @@
     const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
     const albumCount = document.getElementById('albumCount');
     const yearCount = document.getElementById('yearCount');
+    const avgRating = document.getElementById('avgRating');
     const yearFilter = document.getElementById('yearFilter');
     let sortDirection = {};
 
@@ -177,10 +179,23 @@
       reader.readAsText(file);
     }
 
-    function updateCounts() {
-      albumCount.textContent = albumTable.rows.length;
-      filterByYear();
+function updateCounts() {
+  albumCount.textContent = albumTable.rows.length;
+
+  let total = 0;
+  let visibleCount = 0;
+
+  Array.from(albumTable.rows).forEach(row => {
+    if(row.style.display !== 'none'){
+      total += parseFloat(row.cells[2].textContent);
+      visibleCount++;
     }
+  });
+
+  avgRating.textContent = visibleCount ? (total/visibleCount).toFixed(2) : '0.0';
+
+  filterByYear();
+}
 
     function updateYearFilter() {
       const years = new Set();
