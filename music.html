@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Music Hub</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Highlight sorted column */
+    .highlighted {
+      background-color: #e0f7fa;
+      transition: background-color 0.3s;
+    }
+  </style>
 </head>
 <body>
 
@@ -63,6 +70,7 @@
     const avgRating = document.getElementById('avgRating');
     const yearFilter = document.getElementById('yearFilter');
     let sortDirection = {};
+    let highlightedCol = null;
 
     function saveToStorage(){
       const data = [];
@@ -106,10 +114,18 @@
 
     function insertRow(name, artist, rating, year, save=true){
       const rowEl = albumTable.insertRow();
-      rowEl.insertCell(0).textContent = name;
-      rowEl.insertCell(1).textContent = artist;
-      rowEl.insertCell(2).textContent = rating;
-      rowEl.insertCell(3).textContent = year;
+      [name, artist, rating, year].forEach((val,i) => {
+        const cell = rowEl.insertCell(i);
+        cell.textContent = val;
+        cell.contentEditable = true;
+
+        // Save changes on blur
+        cell.addEventListener('blur', () => {
+          updateCounts();
+          updateYearFilter();
+          saveToStorage();
+        });
+      });
 
       const delCell = rowEl.insertCell(4);
       const delBtn = document.createElement('button');
@@ -128,6 +144,10 @@
     function clearArrows(){
       for(let i=0;i<4;i++){
         document.getElementById('arrow'+i).textContent='';
+      }
+      // Remove highlight from previous column
+      if(highlightedCol !== null){
+        Array.from(albumTable.rows).forEach(row => row.cells[highlightedCol].classList.remove('highlighted'));
       }
     }
 
@@ -150,6 +170,10 @@
 
       clearArrows();
       document.getElementById('arrow'+colIndex).textContent = dir===1 ? '▲' : '▼';
+
+      // Highlight sorted column
+      highlightedCol = colIndex;
+      Array.from(albumTable.rows).forEach(row => row.cells[colIndex].classList.add('highlighted'));
 
       saveToStorage();
     }
@@ -242,7 +266,7 @@
 
     loadFromStorage();
 
-    // 2A: Press Enter to add album
+    // Press Enter to add album
     document.addEventListener('keypress', function(e){
       if(e.key === 'Enter'){
         addAlbum();
