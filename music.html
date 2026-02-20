@@ -106,7 +106,6 @@
       albumName.value = artistName.value = albumRating.value = albumYear.value = '';
       updateCounts();
       updateYearFilter();
-      saveToStorage();
     }
 
     function insertRow(name, artist, rating, year, save=true){
@@ -118,10 +117,10 @@
       const delCell = rowEl.insertCell(4);
       const delBtn = document.createElement('button');
       delBtn.textContent = '✖';
-      delBtn.onclick = () => { 
-        albumTable.deleteRow(rowEl.rowIndex - 1); 
-        updateCounts(); 
-        updateYearFilter(); 
+      delBtn.onclick = () => {
+        rowEl.remove();
+        updateCounts();
+        updateYearFilter();
         saveToStorage();
       };
       delCell.appendChild(delBtn);
@@ -187,7 +186,7 @@
       Array.from(albumTable.rows).forEach(row => years.add(row.cells[3].textContent));
       const currentValue = yearFilter.value;
       yearFilter.innerHTML = '<option value="all">All Years</option>';
-      Array.from(years).sort().forEach(y => {
+      Array.from(years).sort(a,b=>a-b).forEach(y => {
         const opt = document.createElement('option');
         opt.value = y;
         opt.textContent = y;
