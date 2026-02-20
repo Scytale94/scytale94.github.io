@@ -8,13 +8,6 @@
 </head>
 <body>
 
-     <!-- Navigation Bar -->
-<nav style="background-color:#333;padding:10px;">
-  <a href="finance.html" style="color:white;margin-right:10px;text-decoration:none;">Finance</a>
-  <a href="fitness.html" style="color:white;margin-right:10px;text-decoration:none;">Fitness</a>
-  <a href="faith.html" style="color:white;margin-right:10px;text-decoration:none;">Faith</a>
-</nav>
-
   <!-- Main Heading -->
   <h1>Music Hub</h1>
 
@@ -117,16 +110,18 @@
       rowEl.insertCell(1).textContent = artist;
       rowEl.insertCell(2).textContent = rating;
       rowEl.insertCell(3).textContent = year;
+
       const delCell = rowEl.insertCell(4);
       const delBtn = document.createElement('button');
       delBtn.textContent = '✖';
-      delBtn.onclick = () => {
-        rowEl.remove();
-        updateCounts();
-        updateYearFilter();
+      delBtn.onclick = () => { 
+        rowEl.remove(); 
+        updateCounts(); 
+        updateYearFilter(); 
         saveToStorage();
       };
       delCell.appendChild(delBtn);
+
       if(save) saveToStorage();
     }
 
@@ -179,30 +174,30 @@
       reader.readAsText(file);
     }
 
-function updateCounts() {
-  albumCount.textContent = albumTable.rows.length;
+    function updateCounts() {
+      albumCount.textContent = albumTable.rows.length;
 
-  let total = 0;
-  let visibleCount = 0;
+      let total = 0;
+      let visibleCount = 0;
 
-  Array.from(albumTable.rows).forEach(row => {
-    if(row.style.display !== 'none'){
-      total += parseFloat(row.cells[2].textContent);
-      visibleCount++;
+      Array.from(albumTable.rows).forEach(row => {
+        if(row.style.display !== 'none'){
+          total += parseFloat(row.cells[2].textContent);
+          visibleCount++;
+        }
+      });
+
+      avgRating.textContent = visibleCount ? (total/visibleCount).toFixed(2) : '0.0';
+
+      filterByYear();
     }
-  });
-
-  avgRating.textContent = visibleCount ? (total/visibleCount).toFixed(2) : '0.0';
-
-  filterByYear();
-}
 
     function updateYearFilter() {
       const years = new Set();
       Array.from(albumTable.rows).forEach(row => years.add(row.cells[3].textContent));
       const currentValue = yearFilter.value;
       yearFilter.innerHTML = '<option value="all">All Years</option>';
-      Array.from(years).sort(a,b=>a-b).forEach(y => {
+      Array.from(years).sort((a,b)=>a-b).forEach(y => {
         const opt = document.createElement('option');
         opt.value = y;
         opt.textContent = y;
@@ -246,11 +241,13 @@ function updateCounts() {
     }
 
     loadFromStorage();
+
+    // 2A: Press Enter to add album
     document.addEventListener('keypress', function(e){
-  if(e.key === 'Enter'){
-    addAlbum();
-  }
-});
+      if(e.key === 'Enter'){
+        addAlbum();
+      }
+    });
   </script>
 
 </body>
