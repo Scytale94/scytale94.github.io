@@ -230,6 +230,11 @@
     }
 
     loadFromStorage();
+    document.addEventListener('keypress', function(e){
+  if(e.key === 'Enter'){
+    addAlbum();
+  }
+});
   </script>
 
 </body>
