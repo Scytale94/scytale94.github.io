@@ -1,285 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Music Hub</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    /* Highlight sorted column */
-    .highlighted {
-      background-color: rgba(74,20,140,0.7); /* semi-transparent dark purple */
-      transition: background-color 0.3s;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Hub</title>
+<link rel="stylesheet" href="styles.css">
+
+<style>
+.highlighted {
+  background-color: rgba(74,20,140,0.7);
+  transition: background-color 0.3s;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
 </head>
 <body>
 
-   <!-- Navigation Bar -->
 <nav style="background-color:#333;padding:10px;">
   <a href="fitness.html" style="color:white;margin-right:10px;text-decoration:none;">Fitness</a>
   <a href="finance.html" style="color:white;margin-right:10px;text-decoration:none;">Finance</a>
   <a href="faith.html" style="color:white;margin-right:10px;text-decoration:none;">Faith</a>
 </nav>
-  
-  <!-- Main Heading -->
-  <h1>Music Hub</h1>
 
-  <!-- Centered Back Button -->
-  <div class="back-button-container">
-    <a href="https://scytale94.github.io/" class="tile back-button">
-      ⬅ Home
-    </a>
-  </div>
+<h1>Music Hub</h1>
 
-  <!-- Albums Section -->
-  <div class="section">
-    <h2>Albums Listened To</h2>
-    <p>Overall albums logged: <span id="albumCount">0</span></p>
-    <p>Albums for selected year: <span id="yearCount">0</span></p>
-    <p>Average Rating: <span id="avgRating">0.0</span></p>
+<div class="back-button-container">
+  <a href="https://scytale94.github.io/" class="tile back-button">
+    ⬅ Home
+  </a>
+</div>
 
-    <!-- Inputs and Actions -->
-    <div>
-      <input type="text" id="albumName" placeholder="Album name" />
-      <input type="text" id="artistName" placeholder="Artist name" />
-      <input type="number" id="albumRating" placeholder="Rating (1-10)" min="1" max="10" step="0.1" />
-      <input type="number" id="albumYear" placeholder="Year" min="1900" max="2100" />
-      <button onclick="addAlbum()">Add Album</button>
-      <button onclick="exportCSV()">Export to CSV</button>
-      <button onclick="document.getElementById('csvFile').click()">Import CSV</button>
-      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
-      <select id="yearFilter" onchange="filterByYear()">
-        <option value="all">All Years</option>
-      </select>
-    </div>
+<div class="section">
+<h2>Albums Listened To</h2>
+<p>Overall albums logged: <span id="albumCount">0</span></p>
+<p>Albums for selected year: <span id="yearCount">0</span></p>
+<p>Average Rating: <span id="avgRating">0.0</span></p>
 
-    <!-- Albums Table -->
-    <table id="albumTable">
-      <thead>
-        <tr>
-          <th onclick="sortTable(0, false)">Album <span id="arrow0"></span></th>
-          <th onclick="sortTable(1, false)">Artist <span id="arrow1"></span></th>
-          <th onclick="sortTable(2, true)">Rating <span id="arrow2"></span></th>
-          <th onclick="sortTable(3, true)">Year <span id="arrow3"></span></th>
-          <th>Delete</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+<div>
+  <input type="text" id="albumName" placeholder="Album name" />
+  <input type="text" id="artistName" placeholder="Artist name" />
+  <input type="number" id="albumRating" placeholder="Rating (1-10)" min="1" max="10" step="0.1" />
+  <input type="number" id="albumYear" placeholder="Year" min="1900" max="2100" />
+  <button onclick="addAlbum()">Add Album</button>
+  <button onclick="exportCSV()">Export to CSV</button>
+  <button onclick="document.getElementById('csvFile').click()">Import CSV</button>
+  <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
+  <select id="yearFilter" onchange="filterByYear()">
+    <option value="all">All Years</option>
+  </select>
+</div>
 
-  <!-- Script -->
-  <script>
-    const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
-    const albumCount = document.getElementById('albumCount');
-    const yearCount = document.getElementById('yearCount');
-    const avgRating = document.getElementById('avgRating');
-    const yearFilter = document.getElementById('yearFilter');
-    let sortDirection = {};
-    let highlightedCol = null;
+<table id="albumTable">
+<thead>
+<tr>
+<th onclick="sortTable(0,false)">Album <span id="arrow0"></span></th>
+<th onclick="sortTable(1,false)">Artist <span id="arrow1"></span></th>
+<th onclick="sortTable(2,true)">Rating <span id="arrow2"></span></th>
+<th onclick="sortTable(3,true)">Year <span id="arrow3"></span></th>
+<th>Delete</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
 
-    function saveToStorage(){
-      const data = [];
-      Array.from(albumTable.rows).forEach(row=>{
-        data.push({
-          name: row.cells[0].textContent,
-          artist: row.cells[1].textContent,
-          rating: row.cells[2].textContent,
-          year: row.cells[3].textContent
-        });
-      });
-      localStorage.setItem('albums', JSON.stringify(data));
-    }
+<script>
 
-    function loadFromStorage(){
-      const data = JSON.parse(localStorage.getItem('albums') || '[]');
-      data.forEach(item=>{
-        insertRow(item.name,item.artist,item.rating,item.year,false);
+const SHEET_ID = "11oqu0KvjnjR1F5ogOAqlZyG1l2FbQKdJSDjOCw3ovZQ";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwNBIzMHvq5cBaB-AvFn483fulxhVekcWdLmdzsRJ9rU_AtLf31wyGIOOPCbm2tjBDBTQ/exec";
+
+const albumTable = document.querySelector('#albumTable tbody');
+const albumCount = document.getElementById('albumCount');
+const yearCount = document.getElementById('yearCount');
+const avgRating = document.getElementById('avgRating');
+const yearFilter = document.getElementById('yearFilter');
+
+let sortDirection = {};
+let highlightedCol = null;
+
+/* =========================
+   GOOGLE SHEETS LOAD
+========================= */
+
+function loadFromGoogleSheet(){
+  Tabletop.init({
+    key: SHEET_ID,
+    simpleSheet: true,
+    callback: function(data){
+      albumTable.innerHTML = '';
+      data.forEach(row=>{
+        insertRow(row.Album,row.Artist,row.Rating,row.Year,false);
       });
       updateCounts();
       updateYearFilter();
+      saveToLocal();
     }
+  });
+}
 
-    function addAlbum() {
-      const name = albumName.value.trim();
-      const artist = artistName.value.trim();
-      const rating = albumRating.value.trim();
-      const year = albumYear.value.trim();
+/* =========================
+   GOOGLE SHEETS SAVE
+========================= */
 
-      if(!name || !artist || !rating || !year) {
-        alert('Please fill out all fields.');
-        return;
-      }
+function saveToGoogleSheet(){
+  if(!SCRIPT_URL.includes("http")) return;
 
-      insertRow(name, artist, rating, year);
-      albumName.value = artistName.value = albumRating.value = albumYear.value = '';
-      albumName.focus();
-      updateCounts();
-      updateYearFilter();
-    }
-
-    function insertRow(name, artist, rating, year, save=true){
-      const rowEl = albumTable.insertRow();
-      [name, artist, rating, year].forEach((val,i) => {
-        const cell = rowEl.insertCell(i);
-        cell.textContent = val;
-        cell.contentEditable = true;
-
-        // Save changes on blur
-        cell.addEventListener('blur', () => {
-          updateCounts();
-          updateYearFilter();
-          saveToStorage();
-        });
-      });
-
-      const delCell = rowEl.insertCell(4);
-      const delBtn = document.createElement('button');
-      delBtn.textContent = '✖';
-      delBtn.onclick = () => { 
-        rowEl.remove(); 
-        updateCounts(); 
-        updateYearFilter(); 
-        saveToStorage();
-      };
-      delCell.appendChild(delBtn);
-
-      if(save) saveToStorage();
-    }
-
-    function clearArrows(){
-      for(let i=0;i<4;i++){
-        document.getElementById('arrow'+i).textContent='';
-      }
-      // Remove highlight from previous column
-      if(highlightedCol !== null){
-        Array.from(albumTable.rows).forEach(row => row.cells[highlightedCol].classList.remove('highlighted'));
-      }
-    }
-
-    function sortTable(colIndex, numeric){
-      const rows = Array.from(albumTable.rows);
-      sortDirection[colIndex] = !sortDirection[colIndex];
-      const dir = sortDirection[colIndex] ? 1 : -1;
-
-      rows.sort((a,b)=>{
-        let valA = a.cells[colIndex].textContent;
-        let valB = b.cells[colIndex].textContent;
-        if(numeric){
-          return (parseFloat(valA)-parseFloat(valB))*dir;
-        }
-        return valA.localeCompare(valB)*dir;
-      });
-
-      albumTable.innerHTML='';
-      rows.forEach(r=>albumTable.appendChild(r));
-
-      clearArrows();
-      document.getElementById('arrow'+colIndex).textContent = dir===1 ? '▲' : '▼';
-
-      // Highlight sorted column
-      highlightedCol = colIndex;
-      Array.from(albumTable.rows).forEach(row => row.cells[colIndex].classList.add('highlighted'));
-
-      saveToStorage();
-    }
-
-    function importCSV(event){
-      const file = event.target.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e){
-        const lines = e.target.result.split('\n').slice(1);
-        lines.forEach(line=>{
-          if(!line.trim()) return;
-          const [name,artist,rating,year] = line.split(',').map(v=>v.replace(/"/g,'').trim());
-          if(name && artist && rating && year){
-            insertRow(name,artist,rating,year);
-          }
-        });
-        updateCounts();
-        updateYearFilter();
-        saveToStorage();
-      };
-      reader.readAsText(file);
-    }
-
-    function updateCounts() {
-      albumCount.textContent = albumTable.rows.length;
-
-      let total = 0;
-      let visibleCount = 0;
-
-      Array.from(albumTable.rows).forEach(row => {
-        if(row.style.display !== 'none'){
-          total += parseFloat(row.cells[2].textContent);
-          visibleCount++;
-        }
-      });
-
-      avgRating.textContent = visibleCount ? (total/visibleCount).toFixed(2) : '0.0';
-
-      filterByYear();
-    }
-
-    function updateYearFilter() {
-      const years = new Set();
-      Array.from(albumTable.rows).forEach(row => years.add(row.cells[3].textContent));
-      const currentValue = yearFilter.value;
-      yearFilter.innerHTML = '<option value="all">All Years</option>';
-      Array.from(years).sort((a,b)=>a-b).forEach(y => {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
-        yearFilter.appendChild(opt);
-      });
-      if(Array.from(yearFilter.options).some(o => o.value === currentValue)) {
-        yearFilter.value = currentValue;
-      }
-      filterByYear();
-    }
-
-    function filterByYear() {
-      const selected = yearFilter.value;
-      let count = 0;
-      Array.from(albumTable.rows).forEach(row => {
-        if(selected === 'all' || row.cells[3].textContent === selected) {
-          row.style.display = '';
-          count++;
-        } else {
-          row.style.display = 'none';
-        }
-      });
-      yearCount.textContent = count;
-    }
-
-    function exportCSV() {
-      let csvContent = 'Album,Artist,Rating,Year\n';
-      Array.from(albumTable.rows).forEach(row => {
-        const cells = row.cells;
-        if(cells.length < 4) return;
-        csvContent += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].textContent}"\n`;
-      });
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'albums.csv');
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    loadFromStorage();
-
-    // Press Enter to add album
-    document.addEventListener('keypress', function(e){
-      if(e.key === 'Enter'){
-        addAlbum();
-      }
+  const data = [];
+  Array.from(albumTable.rows).forEach(row=>{
+    data.push({
+      Album: row.cells[0].textContent,
+      Artist: row.cells[1].textContent,
+      Rating: row.cells[2].textContent,
+      Year: row.cells[3].textContent
     });
-  </script>
+  });
 
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    body:JSON.stringify(data)
+  });
+}
+
+/* =========================
+   LOCAL STORAGE (backup)
+========================= */
+
+function saveToLocal(){
+  const data=[];
+  Array.from(albumTable.rows).forEach(row=>{
+    data.push({
+      Album:row.cells[0].textContent,
+      Artist:row.cells[1].textContent,
+      Rating:row.cells[2].textContent,
+      Year:row.cells[3].textContent
+    });
+  });
+  localStorage.setItem('albums',JSON.stringify(data));
+}
+
+function loadFromLocal(){
+  const data=JSON.parse(localStorage.getItem('albums')||'[]');
+  data.forEach(row=>{
+    insertRow(row.Album,row.Artist,row.Rating,row.Year,false);
+  });
+  updateCounts();
+  updateYearFilter();
+}
+
+/* =========================
+   TABLE FUNCTIONS
+========================= */
+
+function addAlbum(){
+  const name=albumName.value.trim();
+  const artist=artistName.value.trim();
+  const rating=albumRating.value.trim();
+  const year=albumYear.value.trim();
+
+  if(!name||!artist||!rating||!year){
+    alert("Please fill out all fields.");
+    return;
+  }
+
+  insertRow(name,artist,rating,year);
+  albumName.value=artistName.value=albumRating.value=albumYear.value='';
+  albumName.focus();
+}
+
+function insertRow(name,artist,rating,year,save=true){
+  const row=albumTable.insertRow();
+
+  [name,artist,rating,year].forEach((val,i)=>{
+    const cell=row.insertCell(i);
+    cell.textContent=val;
+    cell.contentEditable=true;
+    cell.addEventListener('blur',()=>{
+      updateCounts();
+      updateYearFilter();
+      saveToLocal();
+      saveToGoogleSheet();
+    });
+  });
+
+  const del=row.insertCell(4);
+  const btn=document.createElement('button');
+  btn.textContent='✖';
+  btn.onclick=()=>{
+    row.remove();
+    updateCounts();
+    updateYearFilter();
+    saveToLocal();
+    saveToGoogleSheet();
+  };
+  del.appendChild(btn);
+
+  if(save){
+    saveToLocal();
+    saveToGoogleSheet();
+  }
+}
+
+function sortTable(col,numeric){
+  const rows=Array.from(albumTable.rows);
+  sortDirection[col]=!sortDirection[col];
+  const dir=sortDirection[col]?1:-1;
+
+  rows.sort((a,b)=>{
+    let A=a.cells[col].textContent;
+    let B=b.cells[col].textContent;
+    return numeric?(parseFloat(A)-parseFloat(B))*dir:A.localeCompare(B)*dir;
+  });
+
+  albumTable.innerHTML='';
+  rows.forEach(r=>albumTable.appendChild(r));
+
+  clearArrows();
+  document.getElementById('arrow'+col).textContent=dir===1?'▲':'▼';
+
+  highlightedCol=col;
+  Array.from(albumTable.rows).forEach(r=>r.cells[col].classList.add('highlighted'));
+
+  saveToLocal();
+  saveToGoogleSheet();
+}
+
+function clearArrows(){
+  for(let i=0;i<4;i++){
+    document.getElementById('arrow'+i).textContent='';
+  }
+  if(highlightedCol!==null){
+    Array.from(albumTable.rows).forEach(r=>r.cells[highlightedCol].classList.remove('highlighted'));
+  }
+}
+
+function updateCounts(){
+  albumCount.textContent=albumTable.rows.length;
+  let total=0,count=0;
+
+  Array.from(albumTable.rows).forEach(r=>{
+    if(r.style.display!=='none'){
+      total+=parseFloat(r.cells[2].textContent)||0;
+      count++;
+    }
+  });
+
+  avgRating.textContent=count?(total/count).toFixed(2):'0.0';
+  filterByYear();
+}
+
+function updateYearFilter(){
+  const years=new Set();
+  Array.from(albumTable.rows).forEach(r=>years.add(r.cells[3].textContent));
+  const current=yearFilter.value;
+  yearFilter.innerHTML='<option value="all">All Years</option>';
+  Array.from(years).sort((a,b)=>a-b).forEach(y=>{
+    const opt=document.createElement('option');
+    opt.value=y;
+    opt.textContent=y;
+    yearFilter.appendChild(opt);
+  });
+  if([...yearFilter.options].some(o=>o.value===current)){
+    yearFilter.value=current;
+  }
+  filterByYear();
+}
+
+function filterByYear(){
+  const selected=yearFilter.value;
+  let count=0;
+  Array.from(albumTable.rows).forEach(r=>{
+    if(selected==='all'||r.cells[3].textContent===selected){
+      r.style.display='';
+      count++;
+    }else{
+      r.style.display='none';
+    }
+  });
+  yearCount.textContent=count;
+}
+
+function exportCSV(){
+  let csv='Album,Artist,Rating,Year\n';
+  Array.from(albumTable.rows).forEach(r=>{
+    csv+=`"${r.cells[0].textContent}","${r.cells[1].textContent}","${r.cells[2].textContent}","${r.cells[3].textContent}"\n`;
+  });
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='albums.csv';
+  a.click();
+}
+
+/* =========================
+   INIT
+========================= */
+
+window.onload=function(){
+  loadFromGoogleSheet();
+  setTimeout(()=>{
+    if(albumTable.rows.length===0){
+      loadFromLocal();
+    }
+  },1500);
+};
+
+document.addEventListener('keypress',e=>{
+  if(e.key==='Enter') addAlbum();
+});
+
+</script>
 </body>
 </html>
