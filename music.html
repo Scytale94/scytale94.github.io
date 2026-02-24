@@ -40,19 +40,26 @@
     <p>Average Rating: <span id="avgRating">0.0</span></p>
 
     <!-- Inputs and Actions -->
-    <div>
-      <input type="text" id="albumName" placeholder="Album name" />
-      <input type="text" id="artistName" placeholder="Artist name" />
-      <input type="number" id="albumRating" placeholder="Rating (1-10)" min="1" max="10" step="0.1" />
-      <input type="number" id="albumYear" placeholder="Year" min="1900" max="2100" />
-      <button onclick="addAlbum()">Add Album</button>
-      <button onclick="exportCSV()">Export to CSV</button>
-      <button onclick="document.getElementById('csvFile').click()">Import CSV</button>
-      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
-      <select id="yearFilter" onchange="filterByYear()">
-        <option value="all">All Years</option>
-      </select>
-    </div>
+  <div class="album-controls">
+
+  <div class="input-row">
+    <input type="text" id="albumName" placeholder="Album name" />
+    <input type="text" id="artistName" placeholder="Artist name" />
+    <input type="number" id="albumRating" placeholder="Rating (1-10)" min="1" max="10" step="0.1" />
+    <input type="number" id="albumYear" placeholder="Year" min="1900" max="2100" />
+  </div>
+
+  <div class="button-row">
+    <button onclick="addAlbum()">Add Album</button>
+    <button onclick="exportCSV()">Export to CSV</button>
+    <button onclick="document.getElementById('csvFile').click()">Import CSV</button>
+    <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
+    <select id="yearFilter" onchange="filterByYear()">
+      <option value="all">All Years</option>
+    </select>
+  </div>
+
+</div>
 
     <!-- Albums Table -->
     <table id="albumTable">
