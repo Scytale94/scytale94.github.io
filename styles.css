@@ -160,15 +160,11 @@ select {
   justify-content: center;
 }
 
-/* Equal fixed width inputs */
 .input-row input {
-  flex: 0 0 220px;
-  box-sizing: border-box;
+  flex: 0 0 160px; /* narrower */
 }
 
-/* Equal fixed width buttons + dropdown */
 .button-row button,
 .button-row select {
-  flex: 0 0 220px;
-  box-sizing: border-box;
+  flex: 0 0 140px; /* narrower */
 }
