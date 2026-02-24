@@ -151,6 +151,8 @@ select {
   gap: 18px;
   align-items: center;
   width: 100%;
+  max-width: 680px;   /* ADD THIS */
+  margin: 0 auto;     /* center it */
 }
 
 .input-row,
