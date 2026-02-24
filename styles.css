@@ -143,27 +143,39 @@ select {
   background: var(--card-bg);
   color: var(--text);
 }
+
 /* Album control layout */
 .album-controls {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 18px;
   align-items: center;
+  width: 100%;
 }
 
 .input-row,
 .button-row {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 14px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Make all inputs equal width */
+.input-row input {
+  flex: 1;              /* Equal width */
+  min-width: 0;         /* Prevent overflow */
+}
+
+/* Make buttons + dropdown equal width */
+.button-row button,
+.button-row select {
+  flex: 1;              /* Equal width */
+  min-width: 0;
+}
+
+/* Optional: keep everything nicely centered */
+.input-row,
+.button-row {
   justify-content: center;
 }
-
-.input-row input {
-  min-width: 150px;
-}
-
-.button-row select {
-  min-width: 120px;
-}
-
