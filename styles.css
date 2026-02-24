@@ -160,7 +160,6 @@ select {
   display: flex;
   gap: 14px;
   width: 100%;
-  max-width: 650px;
 }
 
 /* FORCE equal width inputs */
