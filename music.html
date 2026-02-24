@@ -1,78 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Music Hub</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Hub</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- Navigation Bar -->
-<nav class="navbar">
-  <a href="fitness.html">Fitness</a>
-  <a href="finance.html">Finance</a>
-  <a href="faith.html">Faith</a>
+<!-- ORIGINAL NAVBAR (unchanged style) -->
+<nav style="background-color:#333;padding:10px;">
+  <a href="fitness.html" style="color:white;margin-right:10px;text-decoration:none;">Fitness</a>
+  <a href="finance.html" style="color:white;margin-right:10px;text-decoration:none;">Finance</a>
+  <a href="faith.html" style="color:white;margin-right:10px;text-decoration:none;">Faith</a>
 </nav>
-  
+
 <h1>Music Hub</h1>
 
-<div class="back-button-container">
-  <a href="https://scytale94.github.io/" class="tile back-button">
-    ⬅ Home
-  </a>
+<div class="section">
+<h2>Albums Listened To</h2>
+
+<p>Overall albums logged: <span id="albumCount">0</span></p>
+<p>Albums for selected year: <span id="yearCount">0</span></p>
+<p>Average Rating: <span id="avgRating">0.0</span></p>
+
+<!-- Search -->
+<input type="text" id="searchInput" placeholder="Search albums or artists..." class="search-input">
+
+<!-- Controls -->
+<div class="album-controls">
+
+<div class="input-row">
+<input type="text" id="albumName" placeholder="Album name">
+<input type="text" id="artistName" placeholder="Artist name">
+<input type="number" id="albumRating" placeholder="Rating (1-10)" min="1" max="10" step="0.1">
+<input type="number" id="albumYear" placeholder="Year" min="1900" max="2100">
 </div>
 
-<div class="section">
-  <h2>Albums Listened To</h2>
+<div class="button-row">
+<button onclick="addAlbum()">Add Album</button>
+<button onclick="exportCSV()">Export to CSV</button>
+<button onclick="document.getElementById('csvFile').click()">Import CSV</button>
+<input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
+<select id="yearFilter" onchange="filterAndSearch()">
+<option value="all">All Years</option>
+</select>
+</div>
+</div>
 
-  <div class="stats">
-    <p>Overall albums logged: <span id="albumCount">0</span></p>
-    <p>Albums for selected year: <span id="yearCount">0</span></p>
-    <p>Average Rating: <span id="avgRating">0.0</span></p>
-  </div>
+<table id="albumTable">
+<thead>
+<tr>
+<th onclick="sortTable(0,false)">Album <span id="arrow0"></span></th>
+<th onclick="sortTable(1,false)">Artist <span id="arrow1"></span></th>
+<th onclick="sortTable(2,true)">Rating <span id="arrow2"></span></th>
+<th onclick="sortTable(3,true)">Year <span id="arrow3"></span></th>
+<th>Delete</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
-  <!-- Search -->
-  <input type="text" id="searchInput" placeholder="Search albums or artists..." class="search-input" />
-
-  <!-- Controls -->
-  <div class="album-controls">
-
-    <div class="input-row">
-      <input type="text" id="albumName" placeholder="Album name" />
-      <input type="text" id="artistName" placeholder="Artist name" />
-      <input type="number" id="albumRating" placeholder="Rating (1-10)" min="1" max="10" step="0.1" />
-      <input type="number" id="albumYear" placeholder="Year" min="1900" max="2100" />
-    </div>
-
-    <div class="button-row">
-      <button id="addBtn">Add Album</button>
-      <button id="exportBtn">Export to CSV</button>
-      <button id="importBtn">Import CSV</button>
-      <input type="file" id="csvFile" accept=".csv" style="display:none">
-      <select id="yearFilter">
-        <option value="all">All Years</option>
-      </select>
-    </div>
-
-  </div>
-
-  <table id="albumTable">
-    <thead>
-      <tr>
-        <th data-col="0">Album <span id="arrow0"></span></th>
-        <th data-col="1">Artist <span id="arrow1"></span></th>
-        <th data-col="2" data-num="true">Rating <span id="arrow2"></span></th>
-        <th data-col="3" data-num="true">Year <span id="arrow3"></span></th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 </div>
 
 <script>
-const albumTable = document.querySelector('#albumTable tbody');
+const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
 const albumCount = document.getElementById('albumCount');
 const yearCount = document.getElementById('yearCount');
 const avgRating = document.getElementById('avgRating');
@@ -82,159 +74,235 @@ const searchInput = document.getElementById('searchInput');
 let sortDirection = {};
 let highlightedCol = null;
 
+/* SAVE + LOAD */
 function saveToStorage(){
-  const data = [];
-  Array.from(albumTable.rows).forEach(row=>{
-    data.push({
-      name: row.cells[0].textContent,
-      artist: row.cells[1].textContent,
-      rating: row.cells[2].textContent,
-      year: row.cells[3].textContent
-    });
-  });
-  localStorage.setItem('albums', JSON.stringify(data));
+const data=[];
+Array.from(albumTable.rows).forEach(row=>{
+data.push({
+name:row.cells[0].textContent,
+artist:row.cells[1].textContent,
+rating:row.cells[2].textContent,
+year:row.cells[3].textContent
+});
+});
+localStorage.setItem('albums',JSON.stringify(data));
 }
 
 function loadFromStorage(){
-  const data = JSON.parse(localStorage.getItem('albums') || '[]');
-  data.forEach(item=>{
-    insertRow(item.name,item.artist,item.rating,item.year,false);
-  });
-  updateCounts();
-  updateYearFilter();
+const data=JSON.parse(localStorage.getItem('albums')||'[]');
+data.forEach(item=>{
+insertRow(item.name,item.artist,item.rating,item.year,false);
+});
+updateCounts();
+updateYearFilter();
 }
 
+/* ADD ALBUM */
 function addAlbum(){
-  const name = albumName.value.trim();
-  const artist = artistName.value.trim();
-  const rating = albumRating.value.trim();
-  const year = albumYear.value.trim();
+const name=albumName.value.trim();
+const artist=artistName.value.trim();
+const rating=albumRating.value.trim();
+const year=albumYear.value.trim();
 
-  if(!name || !artist || !rating || !year){
-    alert('Please fill out all fields.');
-    return;
-  }
-
-  const duplicate = Array.from(albumTable.rows).some(row =>
-    row.cells[0].textContent === name &&
-    row.cells[1].textContent === artist
-  );
-
-  if(duplicate){
-    alert('Album already exists.');
-    return;
-  }
-
-  insertRow(name,artist,rating,year);
-  albumName.value = artistName.value = albumRating.value = albumYear.value = '';
-  albumName.focus();
-  updateCounts();
-  updateYearFilter();
+if(!name||!artist||!rating||!year){
+alert('Please fill out all fields.');
+return;
 }
 
+/* Duplicate prevention */
+const duplicate=Array.from(albumTable.rows).some(row=>
+row.cells[0].textContent===name &&
+row.cells[1].textContent===artist
+);
+if(duplicate){
+alert('Album already exists.');
+return;
+}
+
+insertRow(name,artist,rating,year);
+albumName.value=artistName.value=albumRating.value=albumYear.value='';
+albumName.focus();
+updateCounts();
+updateYearFilter();
+}
+
+/* INSERT ROW */
 function insertRow(name,artist,rating,year,save=true){
-  const rowEl = albumTable.insertRow();
+const rowEl=albumTable.insertRow();
 
-  [name,artist,rating,year].forEach((val,i)=>{
-    const cell = rowEl.insertCell(i);
-    cell.textContent = val;
-    cell.contentEditable = true;
+[name,artist,rating,year].forEach((val,i)=>{
+const cell=rowEl.insertCell(i);
+cell.textContent=val;
+cell.contentEditable=true;
+cell.addEventListener('blur',()=>{
+updateCounts();
+updateYearFilter();
+saveToStorage();
+});
+});
 
-    cell.addEventListener('blur', ()=>{
-      updateCounts();
-      updateYearFilter();
-      saveToStorage();
-    });
-  });
-
-  if(parseFloat(rating) >= 9){
-    rowEl.classList.add('top-rated');
-  }
-
-  const delCell = rowEl.insertCell(4);
-  const delBtn = document.createElement('button');
-  delBtn.textContent = '✖';
-  delBtn.onclick = ()=>{
-    if(confirm('Delete this album?')){
-      rowEl.remove();
-      updateCounts();
-      updateYearFilter();
-      saveToStorage();
-    }
-  };
-  delCell.appendChild(delBtn);
-
-  if(save) saveToStorage();
+/* Top rated highlight */
+if(parseFloat(rating)>=9){
+rowEl.classList.add('top-rated');
 }
 
-function updateCounts(){
-  albumCount.textContent = albumTable.rows.length;
+const delCell=rowEl.insertCell(4);
+const delBtn=document.createElement('button');
+delBtn.textContent='✖';
+delBtn.onclick=()=>{
+if(confirm('Delete this album?')){
+rowEl.remove();
+updateCounts();
+updateYearFilter();
+saveToStorage();
+}
+};
+delCell.appendChild(delBtn);
 
-  let total = 0;
-  let visibleCount = 0;
-
-  Array.from(albumTable.rows).forEach(row=>{
-    if(row.style.display !== 'none'){
-      total += parseFloat(row.cells[2].textContent);
-      visibleCount++;
-    }
-  });
-
-  avgRating.textContent = visibleCount ? (total/visibleCount).toFixed(2) : '0.0';
-  filterByYear();
+if(save) saveToStorage();
 }
 
+/* SORTING (RESTORED) */
+function clearArrows(){
+for(let i=0;i<4;i++){
+document.getElementById('arrow'+i).textContent='';
+}
+if(highlightedCol!==null){
+Array.from(albumTable.rows).forEach(row=>
+row.cells[highlightedCol].classList.remove('highlighted')
+);
+}
+}
+
+function sortTable(colIndex,numeric){
+const rows=Array.from(albumTable.rows);
+sortDirection[colIndex]=!sortDirection[colIndex];
+const dir=sortDirection[colIndex]?1:-1;
+
+rows.sort((a,b)=>{
+let valA=a.cells[colIndex].textContent;
+let valB=b.cells[colIndex].textContent;
+if(numeric){
+return (parseFloat(valA)-parseFloat(valB))*dir;
+}
+return valA.localeCompare(valB)*dir;
+});
+
+albumTable.innerHTML='';
+rows.forEach(r=>albumTable.appendChild(r));
+
+clearArrows();
+document.getElementById('arrow'+colIndex).textContent=dir===1?'▲':'▼';
+
+highlightedCol=colIndex;
+Array.from(albumTable.rows).forEach(row=>
+row.cells[colIndex].classList.add('highlighted')
+);
+
+saveToStorage();
+}
+
+/* FILTER + SEARCH (combined properly) */
+function filterAndSearch(){
+const selected=yearFilter.value;
+const term=searchInput.value.toLowerCase();
+let count=0;
+
+Array.from(albumTable.rows).forEach(row=>{
+const matchesYear=(selected==='all'||row.cells[3].textContent===selected);
+const matchesSearch=(
+row.cells[0].textContent.toLowerCase().includes(term) ||
+row.cells[1].textContent.toLowerCase().includes(term)
+);
+
+if(matchesYear&&matchesSearch){
+row.style.display='';
+count++;
+}else{
+row.style.display='none';
+}
+});
+
+yearCount.textContent=count;
+}
+
+/* YEAR FILTER UPDATE */
 function updateYearFilter(){
-  const years = new Set();
-  Array.from(albumTable.rows).forEach(row=>years.add(row.cells[3].textContent));
-  const currentValue = yearFilter.value;
-  yearFilter.innerHTML = '<option value="all">All Years</option>';
-  Array.from(years).sort((a,b)=>a-b).forEach(y=>{
-    const opt = document.createElement('option');
-    opt.value = y;
-    opt.textContent = y;
-    yearFilter.appendChild(opt);
-  });
-  if(Array.from(yearFilter.options).some(o=>o.value===currentValue)){
-    yearFilter.value = currentValue;
-  }
-  filterByYear();
+const years=new Set();
+Array.from(albumTable.rows).forEach(row=>years.add(row.cells[3].textContent));
+const currentValue=yearFilter.value;
+yearFilter.innerHTML='<option value="all">All Years</option>';
+Array.from(years).sort((a,b)=>a-b).forEach(y=>{
+const opt=document.createElement('option');
+opt.value=y;
+opt.textContent=y;
+yearFilter.appendChild(opt);
+});
+if(Array.from(yearFilter.options).some(o=>o.value===currentValue)){
+yearFilter.value=currentValue;
+}
+filterAndSearch();
 }
 
-function filterByYear(){
-  const selected = yearFilter.value;
-  let count = 0;
-  Array.from(albumTable.rows).forEach(row=>{
-    if((selected==='all'||row.cells[3].textContent===selected) &&
-       (row.cells[0].textContent.toLowerCase().includes(searchInput.value.toLowerCase()) ||
-        row.cells[1].textContent.toLowerCase().includes(searchInput.value.toLowerCase()))){
-      row.style.display='';
-      count++;
-    } else {
-      row.style.display='none';
-    }
-  });
-  yearCount.textContent = count;
+/* COUNTS */
+function updateCounts(){
+albumCount.textContent=albumTable.rows.length;
+let total=0;
+let visibleCount=0;
+Array.from(albumTable.rows).forEach(row=>{
+if(row.style.display!=='none'){
+total+=parseFloat(row.cells[2].textContent);
+visibleCount++;
+}
+});
+avgRating.textContent=visibleCount?(total/visibleCount).toFixed(2):'0.0';
+filterAndSearch();
 }
 
+/* SEARCH LISTENER */
+searchInput.addEventListener('input',filterAndSearch);
+
+/* ENTER TO ADD (RESTORED) */
+document.addEventListener('keypress',function(e){
+if(e.key==='Enter'){
+addAlbum();
+}
+});
+
+/* EXPORT + IMPORT */
 function exportCSV(){
-  let csv='Album,Artist,Rating,Year\n';
-  Array.from(albumTable.rows).forEach(row=>{
-    csv+=`"${row.cells[0].textContent}","${row.cells[1].textContent}","${row.cells[2].textContent}","${row.cells[3].textContent}"\n`;
-  });
-  const blob=new Blob([csv],{type:'text/csv'});
-  const link=document.createElement('a');
-  link.href=URL.createObjectURL(blob);
-  link.download='albums.csv';
-  link.click();
+let csv='Album,Artist,Rating,Year\n';
+Array.from(albumTable.rows).forEach(row=>{
+if(row.cells.length<4) return;
+csv+=`"${row.cells[0].textContent}","${row.cells[1].textContent}","${row.cells[2].textContent}","${row.cells[3].textContent}"\n`;
+});
+const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+const url=URL.createObjectURL(blob);
+const link=document.createElement('a');
+link.href=url;
+link.download='albums.csv';
+link.click();
 }
 
-document.getElementById('addBtn').onclick=addAlbum;
-document.getElementById('exportBtn').onclick=exportCSV;
-document.getElementById('importBtn').onclick=()=>document.getElementById('csvFile').click();
-document.getElementById('csvFile').onchange=importCSV;
-yearFilter.onchange=filterByYear;
-searchInput.addEventListener('input',filterByYear);
+function importCSV(event){
+const file=event.target.files[0];
+if(!file) return;
+const reader=new FileReader();
+reader.onload=function(e){
+const lines=e.target.result.split('\n').slice(1);
+lines.forEach(line=>{
+if(!line.trim()) return;
+const [name,artist,rating,year]=line.split(',').map(v=>v.replace(/"/g,'').trim());
+if(name&&artist&&rating&&year){
+insertRow(name,artist,rating,year);
+}
+});
+updateCounts();
+updateYearFilter();
+saveToStorage();
+};
+reader.readAsText(file);
+}
 
 loadFromStorage();
 </script>
