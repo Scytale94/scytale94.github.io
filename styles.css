@@ -161,21 +161,19 @@ select {
   max-width: 900px;
 }
 
-/* Make all inputs equal width */
+/* FORCE equal width inputs */
 .input-row input {
-  flex: 1;              /* Equal width */
-  min-width: 0;         /* Prevent overflow */
+  flex: 1 1 0;
+  width: 0;                 /* Critical fix */
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-/* Make buttons + dropdown equal width */
+/* FORCE equal width buttons + dropdown */
 .button-row button,
 .button-row select {
-  flex: 1;              /* Equal width */
+  flex: 1 1 0;
+  width: 0;                 /* Critical fix */
   min-width: 0;
-}
-
-/* Optional: keep everything nicely centered */
-.input-row,
-.button-row {
-  justify-content: center;
+  box-sizing: border-box;
 }
