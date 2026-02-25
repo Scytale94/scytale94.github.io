@@ -40,8 +40,8 @@
     <div class="button-row">
       <button onclick="addAlbum()">Add Album</button>
       <button onclick="exportCSV()">Export to CSV</button>
-      <button onclick="document.getElementById('csvFile').click()">Import CSV</button>
-      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
+      <button onclick="document.getElementById('csvFile').click()">Import TXT</button>
+      <input type="file" id="csvFile" accept=".txt" style="display:none" onchange="importTXT(event)">
       <select id="yearFilter" onchange="filterAndSearch()">
         <option value="all">All Years</option>
       </select>
@@ -108,7 +108,6 @@ function addAlbum(){
     return;
   }
 
-  // Duplicate prevention
   const duplicate=Array.from(albumTable.rows).some(row=>
     row.cells[0].textContent===name &&
     row.cells[1].textContent===artist
@@ -266,38 +265,67 @@ document.addEventListener('keypress',function(e){
   }
 });
 
-// EXPORT + IMPORT
+// EXPORT
 function exportCSV(){
-  let csv='Album,Artist,Rating,Year\n';
+  let csv='Album\tArtist\tRating\tYear\n';
   Array.from(albumTable.rows).forEach(row=>{
     if(row.cells.length<4) return;
-    csv+=`"${row.cells[0].textContent}","${row.cells[1].textContent}","${row.cells[2].textContent}","${row.cells[3].textContent}"\n`;
+    csv+=`${row.cells[0].textContent}\t${row.cells[1].textContent}\t${row.cells[2].textContent}\t${row.cells[3].textContent}\n`;
   });
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const blob=new Blob([csv],{type:'text/plain;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const link=document.createElement('a');
   link.href=url;
-  link.download='albums.csv';
+  link.download='albums.txt';
   link.click();
 }
 
-function importCSV(event){
-  const file=event.target.files[0];
+// IMPORT TXT (TAB DELIMITED)
+function importTXT(event){
+  const file = event.target.files[0];
   if(!file) return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const lines=e.target.result.split('\n').slice(1);
-    lines.forEach(line=>{
-      if(!line.trim()) return;
-      const [name,artist,rating,year]=line.split(',').map(v=>v.replace(/"/g,'').trim());
-      if(name&&artist&&rating&&year){
-        insertRow(name,artist,rating,year);
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    const lines = e.target.result.split('\n');
+
+    let addedCount = 0;
+    let duplicateCount = 0;
+
+    for(let i = 1; i < lines.length; i++){
+      const line = lines[i].trim();
+      if(!line) continue;
+
+      const parts = line.split('\t');
+      if(parts.length < 4) continue;
+
+      const name = parts[0].trim();
+      const artist = parts[1].trim();
+      const rating = parts[2].trim();
+      const year = parts[3].trim();
+
+      const duplicate = Array.from(albumTable.rows).some(row =>
+        row.cells[0].textContent.toLowerCase() === name.toLowerCase() &&
+        row.cells[1].textContent.toLowerCase() === artist.toLowerCase()
+      );
+
+      if(duplicate){
+        duplicateCount++;
+        continue;
       }
-    });
+
+      insertRow(name, artist, rating, year, false);
+      addedCount++;
+    }
+
     updateCounts();
     updateYearFilter();
     saveToStorage();
+
+    alert(`Import complete.\n\nAdded: ${addedCount}\nSkipped duplicates: ${duplicateCount}`);
   };
+
   reader.readAsText(file);
 }
 
