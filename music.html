@@ -1,342 +1,129 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Music Hub</title>
-<link rel="stylesheet" href="styles.css">
+<title>Music Collection</title>
+<style>
+body { font-family: Arial, sans-serif; }
+table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
+th { background: #f4f4f4; }
+button { margin: 5px 0; }
+</style>
 </head>
 <body>
 
-<nav style="background-color:#333;padding:10px;">
-  <a href="fitness.html" style="color:white;margin-right:10px;text-decoration:none;">Fitness</a>
-  <a href="finance.html" style="color:white;margin-right:10px;text-decoration:none;">Finance</a>
-  <a href="faith.html" style="color:white;margin-right:10px;text-decoration:none;">Faith</a>
-</nav>
+<h2>Music Collection</h2>
 
-<h1>Music Hub</h1>
+<input type="file" id="fileInput" accept=".txt,.tsv">
+<button onclick="importTXT()">Import File</button>
 
-<div class="section">
-  <h2>Albums Listened To</h2>
-
-  <p>Overall albums logged: <span id="albumCount">0</span></p>
-  <p>Albums for selected year: <span id="yearCount">0</span></p>
-  <p>Average Rating: <span id="avgRating">0.0</span></p>
-
-  <input type="text" id="searchInput" placeholder="Search albums or artists..." class="search-input">
-
-  <div class="album-controls">
-    <div class="input-row">
-      <input type="text" id="albumName" placeholder="Album name">
-      <input type="text" id="artistName" placeholder="Artist name">
-      <input type="number" id="albumRating" placeholder="Rating (1-10)" min="1" max="10" step="0.1">
-      <input type="number" id="albumYear" placeholder="Year" min="1900" max="2100">
-    </div>
-
-    <div class="button-row">
-      <button onclick="addAlbum()">Add Album</button>
-      <button onclick="exportTXT()">Export TXT</button>
-      <button onclick="document.getElementById('txtFile').click()">Import TXT</button>
-      <input type="file" id="txtFile" accept=".txt" style="display:none" onchange="importTXT(event)">
-      <select id="yearFilter" onchange="filterAndSearch()">
-        <option value="all">All Years</option>
-      </select>
-    </div>
-  </div>
-
-  <table id="albumTable">
-    <thead>
-      <tr>
-        <th onclick="sortTable(0,false)">Album <span id="arrow0"></span></th>
-        <th onclick="sortTable(1,false)">Artist <span id="arrow1"></span></th>
-        <th onclick="sortTable(2,true)">Rating <span id="arrow2"></span></th>
-        <th onclick="sortTable(3,true)">Year <span id="arrow3"></span></th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+<table id="musicTable">
+<thead>
+<tr>
+<th>Album</th>
+<th>Artist</th>
+<th>Rating</th>
+<th>Year</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
 
 <script>
-const albumTable = document.getElementById('albumTable').getElementsByTagName('tbody')[0];
-const albumCount = document.getElementById('albumCount');
-const yearCount = document.getElementById('yearCount');
-const avgRating = document.getElementById('avgRating');
-const yearFilter = document.getElementById('yearFilter');
-const searchInput = document.getElementById('searchInput');
-let sortDirection = {};
-let highlightedCol = null;
+
+function cleanField(str){
+  if(!str) return '';
+
+  // Remove carriage returns and NBSP
+  str = str.replace(/\r/g,'').replace(/\u00A0/g,' ');
+
+  // Normalize unicode (fix accented characters)
+  str = str.normalize("NFKC");
+
+  // Trim whitespace
+  str = str.trim();
+
+  // Remove wrapping straight or smart quotes ONLY
+  if(
+    (str.startsWith('"') && str.endsWith('"')) ||
+    (str.startsWith('“') && str.endsWith('”')) ||
+    (str.startsWith('„') && str.endsWith('“')) ||
+    (str.startsWith("'") && str.endsWith("'"))
+  ){
+    str = str.slice(1,-1).trim();
+  }
+
+  return str;
+}
 
 function normalizeString(str){
-  return str
-    .replace(/\r/g,'')
-    .replace(/^"|"$/g,'')
-    .replace(/\u00A0/g,' ')
-    .normalize("NFKC")
-    .trim()
-    .toLowerCase();
+  return cleanField(str).toLowerCase();
 }
 
-function removeExistingDuplicates(){
-  const seen = new Set();
-  let removed = 0;
-
-  Array.from(albumTable.rows).forEach(row=>{
-    const key = normalizeString(row.cells[0].textContent) + "||" +
-                normalizeString(row.cells[1].textContent);
-
-    if(seen.has(key)){
-      row.remove();
-      removed++;
-    } else {
-      seen.add(key);
-    }
-  });
-
-  if(removed > 0){
-    saveToStorage();
-  }
-}
-
-function saveToStorage(){
-  const data=[];
-  Array.from(albumTable.rows).forEach(row=>{
-    data.push({
-      name:row.cells[0].textContent,
-      artist:row.cells[1].textContent,
-      rating:row.cells[2].textContent,
-      year:row.cells[3].textContent
-    });
-  });
-  localStorage.setItem('albums',JSON.stringify(data));
-}
-
-function loadFromStorage(){
-  const data=JSON.parse(localStorage.getItem('albums')||'[]');
-  data.forEach(item=>{
-    insertRow(item.name,item.artist,item.rating,item.year,false);
-  });
-  removeExistingDuplicates();
-  updateCounts();
-  updateYearFilter();
-}
-
-function addAlbum(){
-  const name=albumName.value.trim();
-  const artist=artistName.value.trim();
-  const rating=albumRating.value.trim();
-  const year=albumYear.value.trim();
-
-  if(!name||!artist||!rating||!year){
-    alert('Please fill out all fields.');
+function importTXT(){
+  const fileInput = document.getElementById('fileInput');
+  const file = fileInput.files[0];
+  if(!file){
+    alert("Please select a file.");
     return;
   }
-
-  const normalizedName = normalizeString(name);
-  const normalizedArtist = normalizeString(artist);
-
-  const duplicate=Array.from(albumTable.rows).some(row=>
-    normalizeString(row.cells[0].textContent)===normalizedName &&
-    normalizeString(row.cells[1].textContent)===normalizedArtist
-  );
-
-  if(duplicate){
-    alert('Album already exists.');
-    return;
-  }
-
-  insertRow(name,artist,rating,year);
-  albumName.value=artistName.value=albumRating.value=albumYear.value='';
-  albumName.focus();
-  updateCounts();
-  updateYearFilter();
-}
-
-function insertRow(name,artist,rating,year,save=true){
-  const rowEl=albumTable.insertRow();
-  [name,artist,rating,year].forEach((val,i)=>{
-    const cell=rowEl.insertCell(i);
-    cell.textContent=val;
-    cell.contentEditable=true;
-    cell.addEventListener('blur',()=>{
-      removeExistingDuplicates();
-      updateCounts();
-      updateYearFilter();
-      saveToStorage();
-    });
-  });
-
-  if(parseFloat(rating)>=9){
-    rowEl.classList.add('top-rated');
-  }
-
-  const delCell=rowEl.insertCell(4);
-  const delBtn=document.createElement('button');
-  delBtn.textContent='✖';
-  delBtn.onclick=()=>{
-    if(confirm('Delete this album?')){
-      rowEl.remove();
-      updateCounts();
-      updateYearFilter();
-      saveToStorage();
-    }
-  };
-  delCell.appendChild(delBtn);
-
-  if(save) saveToStorage();
-}
-
-function sortTable(colIndex,numeric){
-  const rows=Array.from(albumTable.rows);
-  sortDirection[colIndex]=!sortDirection[colIndex];
-  const dir=sortDirection[colIndex]?1:-1;
-
-  rows.sort((a,b)=>{
-    let valA=a.cells[colIndex].textContent;
-    let valB=b.cells[colIndex].textContent;
-    if(numeric){
-      return (parseFloat(valA)-parseFloat(valB))*dir;
-    }
-    return valA.localeCompare(valB)*dir;
-  });
-
-  albumTable.innerHTML='';
-  rows.forEach(r=>albumTable.appendChild(r));
-  saveToStorage();
-}
-
-function filterAndSearch(){
-  const selected=yearFilter.value;
-  const term=searchInput.value.toLowerCase();
-  let count=0;
-
-  Array.from(albumTable.rows).forEach(row=>{
-    const matchesYear=(selected==='all'||row.cells[3].textContent===selected);
-    const matchesSearch=(
-      row.cells[0].textContent.toLowerCase().includes(term) ||
-      row.cells[1].textContent.toLowerCase().includes(term)
-    );
-
-    if(matchesYear&&matchesSearch){
-      row.style.display='';
-      count++;
-    }else{
-      row.style.display='none';
-    }
-  });
-
-  yearCount.textContent=count;
-}
-
-function updateYearFilter(){
-  const years=new Set();
-  Array.from(albumTable.rows).forEach(row=>years.add(row.cells[3].textContent));
-  const currentValue=yearFilter.value;
-  yearFilter.innerHTML='<option value="all">All Years</option>';
-  Array.from(years).sort((a,b)=>a-b).forEach(y=>{
-    const opt=document.createElement('option');
-    opt.value=y;
-    opt.textContent=y;
-    yearFilter.appendChild(opt);
-  });
-  if(Array.from(yearFilter.options).some(o=>o.value===currentValue)){
-    yearFilter.value=currentValue;
-  }
-  filterAndSearch();
-}
-
-function updateCounts(){
-  albumCount.textContent=albumTable.rows.length;
-  let total=0;
-  let visibleCount=0;
-  Array.from(albumTable.rows).forEach(row=>{
-    if(row.style.display!=='none'){
-      total+=parseFloat(row.cells[2].textContent);
-      visibleCount++;
-    }
-  });
-  avgRating.textContent=visibleCount?(total/visibleCount).toFixed(2):'0.0';
-}
-
-searchInput.addEventListener('input',filterAndSearch);
-
-document.addEventListener('keypress',function(e){
-  if(e.key==='Enter'){
-    addAlbum();
-  }
-});
-
-function exportTXT(){
-  let txt='Album\tArtist\tRating\tYear\n';
-  Array.from(albumTable.rows).forEach(row=>{
-    if(row.cells.length<4) return;
-    txt+=`${row.cells[0].textContent}\t${row.cells[1].textContent}\t${row.cells[2].textContent}\t${row.cells[3].textContent}\n`;
-  });
-  const blob=new Blob([txt],{type:'text/plain;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const link=document.createElement('a');
-  link.href=url;
-  link.download='albums.txt';
-  link.click();
-}
-
-function importTXT(event){
-  const file = event.target.files[0];
-  if(!file) return;
 
   const reader = new FileReader();
+
   reader.onload = function(e){
-    let content = e.target.result;
-    if(content.charCodeAt(0)===0xFEFF){
-      content=content.slice(1);
-    }
+    const text = e.target.result;
+    const lines = text.split('\n');
+    const table = document.getElementById('musicTable').getElementsByTagName('tbody')[0];
 
-    const lines = content.split('\n');
-    let addedCount=0;
-    let duplicateCount=0;
+    // Build set of existing entries
+    const existing = new Set();
+    Array.from(table.rows).forEach(row=>{
+      const key =
+        normalizeString(row.cells[0].innerText) + '|' +
+        normalizeString(row.cells[1].innerText);
+      existing.add(key);
+    });
 
-    for(let i=1;i<lines.length;i++){
-      const line=lines[i].replace(/\r/g,'').trim();
-      if(!line) continue;
+    const imported = new Set(); // prevent duplicates inside same file
 
-      const parts=line.split('\t');
-      if(parts.length<4) continue;
+    lines.forEach(line=>{
+      if(!line.trim()) return;
 
-      const name=parts[0].trim();
-      const artist=parts[1].trim();
-      const rating=parts[2].trim();
-      const year=parts[3].trim();
+      const parts = line.split('\t'); // MUST be tab-delimited
+      if(parts.length < 4) return;
 
-      const normalizedName=normalizeString(name);
-      const normalizedArtist=normalizeString(artist);
+      const name = cleanField(parts[0]);
+      const artist = cleanField(parts[1]);
+      const rating = cleanField(parts[2]);
+      const year = cleanField(parts[3]);
 
-      const duplicate=Array.from(albumTable.rows).some(row=>
-        normalizeString(row.cells[0].textContent)===normalizedName &&
-        normalizeString(row.cells[1].textContent)===normalizedArtist
-      );
+      if(!name || !artist) return;
 
-      if(duplicate){
-        duplicateCount++;
-        continue;
-      }
+      const key =
+        normalizeString(name) + '|' +
+        normalizeString(artist);
 
-      insertRow(name,artist,rating,year,false);
-      addedCount++;
-    }
+      // Skip duplicates
+      if(existing.has(key) || imported.has(key)) return;
 
-    removeExistingDuplicates();
-    updateCounts();
-    updateYearFilter();
-    saveToStorage();
+      imported.add(key);
 
-    alert(`Import complete.\n\nAdded: ${addedCount}\nSkipped duplicates: ${duplicateCount}`);
+      const newRow = table.insertRow();
+      newRow.insertCell(0).innerText = name;
+      newRow.insertCell(1).innerText = artist;
+      newRow.insertCell(2).innerText = rating;
+      newRow.insertCell(3).innerText = year;
+    });
+
+    alert("Import complete.");
   };
 
-  reader.readAsText(file,"UTF-8");
+  // IMPORTANT: Force UTF-8
+  reader.readAsText(file, "UTF-8");
 }
 
-loadFromStorage();
 </script>
 
 </body>
